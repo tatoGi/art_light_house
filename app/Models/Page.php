@@ -31,6 +31,14 @@ class Page extends Model
                 $query->orderBy('sort', 'asc');
             }]);
     }
+    
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'page_product')
+            ->withPivot('sort')
+            ->withTimestamps()
+            ->orderBy('page_product.sort');
+    }
 
     public function parent()
     {
@@ -75,5 +83,19 @@ class Page extends Model
     public function images()
     {
         return $this->hasMany(PageOptionsImage::class);
+    }
+
+    public function bannerProducts()
+    {
+        return $this->belongsToMany(Product::class, 'page_product')
+            ->withPivot('sort')
+            ->orderBy('page_product.sort');
+    }
+
+    public function banners()
+    {
+        return $this->belongsToMany(Banner::class, 'banner_page')
+            ->withPivot('sort')
+            ->orderBy('banner_page.sort');
     }
 }

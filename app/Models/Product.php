@@ -30,6 +30,14 @@ class Product extends Model implements TranslatableContract
     {
         return $this->hasMany(ProductImage::class);
     }
+
+    public function pages()
+    {
+        return $this->belongsToMany(Page::class, 'page_product')
+            ->withPivot('sort')
+            ->withTimestamps()
+            ->orderBy('page_product.sort');
+    }
     public function getDynamicSEOData(): SEOData
     {
         $firstImage = $this->images()->first();

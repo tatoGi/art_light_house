@@ -1,94 +1,164 @@
-<x-admin.admin-layout>
-
-<div class="flex flex-wrap my-5 -mx-2">
-    
-
-    <div class="flex justify-between w-full px-2">
-        <h3 class="text-xl font-bold text-center ">{{ __('admin.Products') }}</h3>
-        <a href="/{{ app()->getlocale() }}/admin/products/create" class="btn  flex overflow-hidden relative w-40 bg-blue-500 text-white py-2 px-4 rounded-xl font-bold uppercase 
-        before:block before:absolute before:h-full before:w-1/2 before:rounded-full
-        before:bg-orange-400 before:top-0 before:left-1/4 before:transition-transform before:opacity-0 
-        before:hover:opacity-100 hover:text-orange-200 hover:before:animate-ping transition-all duration-300"
-        style="font-size: 0.8rem;" >
-            <span class="relative">{{ __('admin.Create_Product') }}</span>
-            <i class="material-icons-outlined ml-2">add</i>
-        </a>
-    </div>
-
-
-<table class="w-full mx-auto">
-
-<!-- alert -->
-@if(Session()->has('message'))
-    <div id="alert-2" class="w-3/4 mx-auto flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-
-        <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-        </svg>
-        <span class="sr-only">Info</span>
-        <div class="ml-3 text-sm font-medium">
-            {{ Session::get('message') }}
+<div class="container-fluid py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-3 mb-md-0">{{ __('admin.Products') }}</h2>
+        <div class="d-flex gap-2">
+         
+            <a href="/{{ app()->getLocale() }}/admin/products/create/{{ $page->id }}" 
+               class="btn btn-primary d-flex align-items-center">
+                <i class="fas fa-plus me-1"></i> {{ __('admin.Add Product') }}
+            </a>
         </div>
-        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700" data-dismiss-target="#alert-2" aria-label="Close">
-            <span class="sr-only">Close</span>
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-            </svg>
-        </button>
     </div>
-@endif
 
-<!-- end alert  -->
-<div class="w-3/4 mx-auto">
-    {{-- {{ $Products->links()  }} --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>{{ __('admin.Title') }}</th>
+                            <th>{{ __('admin.Description') }}</th>
+                            <th class="text-nowrap">{{ __('admin.Price') }}</th>
+                            <th class="text-center">{{ __('admin.Status') }}</th>
+                            <th class="text-end">{{ __('admin.Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($page->products as $product)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td class="text-nowrap">{{ $product->title }}</td>
+                            <td class="text-truncate" style="max-width: 250px;" title="{{ $product->description }}">
+                                {{ $product->description }}
+                            </td>
+                            <td class="text-nowrap">{{ number_format($product->price, 2) }} {{ config('app.currency', '$') }}</td>
+                            <td class="text-center">
+                                <form action="{{ route('admin.products.toggle-status', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="page_id" value="{{ $page->id }}">
+                                    <button type="submit" class="btn btn-sm btn-status {{ $product->status ? 'btn-success' : 'btn-outline-secondary' }}">
+                                        {{ $product->status ? __('admin.Active') : __('admin.Inactive') }}
+                                    </button>
+                                </form>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('admin.products.show', $product->id) }}" 
+                                       class="btn btn-sm btn-outline-info"
+                                       title="{{ __('admin.View') }}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.products.edit', ['product' => $product->id, 'page_id' => $page->id]) }}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="{{ __('admin.Edit') }}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger delete-product"
+                                            data-id="{{ $product->id }}"
+                                            data-page-id="{{ $page->id }}"
+                                            title="{{ __('admin.Delete') }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-box-open fa-3x mb-3"></i>
+                                    <h5 class="mb-2">{{ __('admin.No products found') }}</h5>
+                                    <p class="mb-0">{{ __('admin.Get started by adding your first product') }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{-- @if($page->products->hasPages())
+        <div class="card-footer bg-transparent">
+            {{ $page->products->links() }}
+        </div>
+        @endif --}}
+    </div>
 </div>
-    <thead>
-        <tr>
-            <th class="px-4 py-2">{{ __('admin.ID') }}</th>
-            <th class="px-4 py-2">{{ __('admin.Title') }}</th>
-            <th class="px-4 py-2">{{ __('admin.Description') }}</th>
-            <th class="px-4 py-2">{{ __('admin.Price') }}</th>
-            <th class="px-4 py-2">{{ __('admin.Actions') }}</th>
-        </tr>
-    </thead>
 
-    <tbody>
-        @foreach($products as $key => $product)
-        
-        <tr class="text-center">
-            <td class="border px-4 py-2">{{ $product->id }}</td>
-            <td class="border px-4 py-2">{{ Str::limit($product->title, 10) }}</td>
-            <td class="border px-4 py-2">{!!  Str::limit($product->description, 20) !!}</td>
-            <td class="border px-4 py-2">{{ $product->price }}</td>
-            <td class="border px-4 py-2">
-                <button class="bg-blue-500 text-white py-1 px-2 rounded">
-                    <a href="/{{ app()->getLocale() }}/admin/products/{{ $product->id }}/edit" class="text-white">
-                        <i class="fas fa-edit"></i>{{ __('admin.Edit') }}
-                    </a>
-                </button>
-                {{-- <button class="bg-blue-500 text-white py-1 px-2 rounded">
-                    <a href="{{ route('product.option.index', [app()->getlocale() , $product->id]) }}" class="text-white">
-                        <i class="ico fas fa-th-list"></i>{{ __('admin.Options') }}
-                    </a>
-                </button> --}}
-              
-                <form action="{{ route('products.destroy', [app()->getlocale(), $product->id]) }}" method="post" class="inline delete" onsubmit="return confirm('Do you want to delete this product?');">
-                    @csrf 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ __('admin.Confirm Deletion') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ __('admin.Are you sure you want to delete this product? This action cannot be undone.') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('admin.Cancel') }}</button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    @csrf
                     @method('DELETE')
-                    <button class="bg-red-500 text-white py-1 px-2 rounded" type="submit">
-                        <i class="fas fa-trash"></i> {{ __('admin.Delete') }}
-                    </button>
+                    <input type="hidden" name="page_id" id="deletePageId" value="">
+                    <button type="submit" class="btn btn-danger">{{ __('admin.Delete') }}</button>
                 </form>
-            </td>
-        </tr>
-    @endforeach
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete product with confirmation
+    const deleteButtons = document.querySelectorAll('.delete-product');
+    const deleteForm = document.getElementById('deleteForm');
+    const deletePageId = document.getElementById('deletePageId');
     
-   
-    </tbody>
-   
-</table>
-<div class="flex justify-center col-12 w-full">
-    {{ $products->links('admin.pagination.pagination') }} <!-- Pagination links -->
-</div>
-</div>
-</x-admin.admin-layout>
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-id');
+            const pageId = this.getAttribute('data-page-id');
+            
+            deleteForm.action = `/{{ app()->getLocale() }}/admin/products/${productId}`;
+            deletePageId.value = pageId;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        });
+    });
+
+    // Auto-hide success message after 5 seconds
+    const alert = document.querySelector('.alert');
+    if (alert) {
+        setTimeout(() => {
+            alert.alert('close');
+        }, 5000);
+    }
+});
+</script>
+@endpush
+
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Bootstrap 5 JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">

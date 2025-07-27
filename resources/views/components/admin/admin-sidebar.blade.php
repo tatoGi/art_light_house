@@ -3,17 +3,20 @@
         ['icon' => 'fa-tachometer-alt', 'title' => __('admin.Statistics'), 'url' => 'admin'],
         [
             'icon' => 'fa-list',
-            'title' => __('admin.List'),
-            'submenu' => [
-                ['title' => __('admin.Categories'), 'url' => 'admin/categories'],
-                ['title' => __('admin.Products'), 'url' => 'admin/products'],
-            ],
+            'title' => __('admin.categories'),
+            'url' => 'admin/categories',
         ],
-        ['icon' => 'fa-file-alt', 'title' => __('admin.Pages'), 'url' => 'admin/pages'],
+        [
+            'icon' => 'fa-file-alt', 
+            'title' => __('admin.Pages'), 
+           
+                'url' => 'admin/pages',
+               
+            
+        ],
         // ['icon' => 'fa-briefcase', 'title' => __('admin.Companies'), 'url' => '#'],
         ['icon' => 'fa-id-card-alt', 'title' => __('admin.Users'), 'url' => 'admin/webusers'],
         // ['icon' => 'fa-donate', 'title' => __('admin.Payments'), 'url' => '#'],
-        ['icon' => 'fa-bullhorn', 'title' => __('admin.Banners'), 'url' => 'admin/banners'],
         ['icon' => 'fa-comments', 'title' => __('admin.Subscribers'), 'url' => 'admin/subscribers'],
         ['icon' => 'fa-book', 'title' => __('admin.Languages'), 'url' => 'admin/languages'],
         ['icon' => 'fa-life-ring', 'title' => __('admin.Help'), 'url' => '#'],

@@ -1,201 +1,97 @@
-<x-admin.admin-layout>
-
-    <div class="flex flex-wrap my-5 -mx-2">
-
-        <div class="flex justify-end w-full px-2">
-
-            <a href="/{{ app()->getLocale() }}/admin/banners/create" class="btn  flex overflow-hidden relative w-32 bg-blue-500 text-white py-2 px-4 rounded-xl font-bold uppercase 
-
-            before:block before:absolute before:h-full before:w-1/2 before:rounded-full
-
-            before:bg-orange-400 before:top-0 before:left-1/4 before:transition-transform before:opacity-0 
-
-            before:hover:opacity-100 hover:text-orange-200 hover:before:animate-ping transition-all duration-300"
-
-            style="font-size: 0.8rem;" >
-
-                <span class="relative">Create banner</span>
-
-                <i class="material-icons-outlined ml-2">add</i>
-
-            </a>
-
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0">Banners</h2>
+        <a href="/{{ app()->getLocale() }}/admin/banners/create/{{ $page_id ?? '' }}"
+           class="btn btn-primary d-flex align-items-center">
+            <i class="material-icons-outlined me-2">add</i>
+            Create Banner
+        </a>
+    </div>
+    @if(session('message'))
+        <div class="alert alert-{{ session('alert-type', 'info') }} alert-dismissible fade show" role="alert">
+            {{ session('message') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+    @endif
 
-        
-
-        
-
-        <div class="flex justify-center w-full h-full min-h-screen">
-
-            <div class="overflow-auto lg:overflow-visible w-full h-full ">
-
-                <table class="table text-gray-200 border-separate space-y-6 text-lg w-full h-full">
-
-                    <thead class="bg-gray-200 text-gray-800">
-
-                        <tr>
-
-                            <th class="p-3 text-center">Icon</th> <!-- New th for icon -->
-
-                            <th class="p-3 text-center">Title</th>
-
-                            <th class="p-3 text-center">Description</th>
-
-                            <th class="p-3 text-center">Parent banner</th>
-
-                            <th class="p-3 text-center">Status</th>
-
-                            <th class="p-3 text-center">Action</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        @foreach($banners as $banner)
-
-                        <tr class="bg-gray-200 text-gray-800">
-
-                            <td class="p-3">
-
-                                <!-- Add your icon here -->
-
-                                
-
-                                @if(isset($banner->icon))
-
-                                <img src="{{ asset('storage/icons/' . $banner->icon)  }}" alt="banner Icon" class="w-8 h-8">
-
-                                @endif
-
-                            </td>
-
-                            <td class="px-3 text-center text-gray-800">{{ $banner->title }}</td>
-
-                            <td class="border px-4 py-2 text-gray-800">{{ implode(' ', array_slice(explode(' ', $banner->description), 0, 10)) . '...' }}</td>
-
-    
-
-                            <td class="p-3 text-center text-gray-800">{{ $banner->parent ? $banner->parent->title : 'N/A' }}</td>
-
-                            <td class="p-3 text-center text-gray-800  font-bold">{{ $banner->active ? 'Active' : 'Inactive' }}</td>
-
-                            <td class="p-3 text-center text-gray-800">
-
-                                <a href="/{{ app()->getLocale() }}/admin/banners/{{ $banner->id }}/edit" class="text-blue-400 hover:text-gray-100 mx-2">
-
-                                    <i class="fas fa-pencil-alt  !text-base"></i>
-
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">Icon</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Parent Banner</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($banners as $banner)
+                    <tr>
+                        <td class="text-center">
+                            @if($banner->icon)
+                                <img src="{{ asset('storage/' . $banner->icon) }}"
+                                     alt="{{ $banner->title }}"
+                                     class="img-thumbnail"
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                            @else
+                                <span class="text-muted">No icon</span>
+                            @endif
+                        </td>
+                        <td>{{ $banner->title }}</td>
+                        <td>{!! Str::limit($banner->translate(app()->getlocale())->desc, 50) !!}</td>
+                        <td>{{ $banner->parent ? $banner->parent->title : 'None' }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-{{ $banner->status ? 'success' : 'secondary' }}">
+                                {{ $banner->status ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group" role="group">
+                                <a href="{{ route('banners.edit',[ $banner->id, app()->getLocale()]) }}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   title="Edit">
+                                    <i class="material-icons-outlined" style="font-size: 1rem;">edit</i>
                                 </a>
-
-                                <form action="{{ route('banners.destroy', [app()->getlocale(), $banner->id]) }}" method="post" class="inline delete" onsubmit="return confirm('Do you want to delete this product?');">
-
-                                    @csrf 
-
+                                <form action="{{ route('banners.destroy',[$banner->id, app()->getLocale()]) }}" method="POST" class="d-inline">
+                                    @csrf
                                     @method('DELETE')
-
-                                    <button class="bg-red-500  !text-sm text-white py-1 px-2 rounded" type="submit">
-
-                                        <i class="fas fa-trash !text-sm"></i> {{ __('admin.Delete') }}
-
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Are you sure you want to delete this banner?')"
+                                            title="Delete">
+                                        <i class="material-icons-outlined" style="font-size: 1rem;">delete</i>
                                     </button>
-
                                 </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center">No banners found</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                            </td>
 
-                        </tr>
-
-                        @endforeach
-
-                    </tbody>
-
-                </table>
-
-                
-
-    <div class="flex justify-center w-full">
-
-        {{ $banners->links('admin.pagination.pagination') }}
-
-        <!-- Pagination links -->
-
-    </div>
-
-            </div>
-
+        <div class="card-footer">
+            @include('admin.pagination.pagination', ['paginator' => $banners])
         </div>
 
     </div>
+</div>
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 
-    
+<!-- Bootstrap 5 JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <style>
-
-        .table {
-
-            border-spacing: 0 15px;
-
-        }
-
-    
-
-        i {
-
-            font-size: 1.5rem !important;
-
-        }
-
-    
-
-        .table tr {
-
-            border-radius: 20px;
-
-        }
-
-    
-
-    </style> 
-
-    <script>
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-            var deleteLinks = document.querySelectorAll('[data-confirm]');
-
-    
-
-            for (var i = 0; i < deleteLinks.length; i++) {
-
-                deleteLinks[i].addEventListener('click', function(event) {
-
-                    event.preventDefault();
-
-    
-
-                    var choice = confirm(this.getAttribute('data-confirm'));
-
-    
-
-                    if (choice) {
-
-                        window.location.href = this.getAttribute('href');
-
-                    }
-
-                });
-
-            }
-
-        });
-
-    </script>
-
-</x-admin.admin-layout> 
-
-    
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">

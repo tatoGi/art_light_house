@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
-use App\Models\Visit;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Webuser;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,17 +18,22 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        $visitsByCountry = Visit::select('country', DB::raw('count(*) as total'))
-            ->groupBy('country')
-            ->get();
-
-        $visitsByCity = Visit::select('city', DB::raw('count(*) as total'))
-            ->groupBy('city')
-            ->get();
+        $products = Product::count();
+        $activeProducts = Product::where('active', 1)->count();
+        $inactiveProducts = Product::where('active', 0)->count();
+        $categories = Category::count();
+        $activeCategories = Category::where('active', 1)->count();
+        $inactiveCategories = Category::where('active', 0)->count();
+        $webusers = Webuser::count();
 
         return view('admin.analytics.index', [
-            'visitsByCountry' => $visitsByCountry,
-            'visitsByCity' => $visitsByCity,
+            'products' => $products,
+            'activeProducts' => $activeProducts,
+            'inactiveProducts' => $inactiveProducts,
+            'categories' => $categories,
+            'activeCategories' => $activeCategories,
+            'inactiveCategories' => $inactiveCategories,
+            'webusers' => $webusers
         ]);
     }
 }

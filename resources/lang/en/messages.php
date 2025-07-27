@@ -4,7 +4,7 @@ return array (
   'category' => 'category',
   'The_site_is_working_in_test_mode' => 'The site is working in test mode',
   'Contact_Us' => 'Contact Us',
-  'login_in' => 'Login In',
+  'login_in' => 'Login',
   'my_account' => 'My Account',
   'checkout' => 'Checkout',
   'sign_in' => 'Sign In',

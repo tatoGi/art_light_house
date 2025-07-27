@@ -7,14 +7,22 @@ use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\Page;
+use App\Models\ProductOption;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\RedirectResponse;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,11 +40,10 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(): Factory|View
+    public function create($page_id = null): Factory|View
     {
         $categories = Category::all(); // Optionally, list all categories for selection
-
-        return view('admin.products.create', compact('categories'));
+        return view('admin.products.create', compact('categories', 'page_id'));
     }
 
     /**
@@ -86,8 +93,6 @@ class ProductController extends Controller
 
         return redirect()->route('products.index', app()->getLocale());
     }
-
-
 
     /**
      * Display the specified resource.
@@ -172,7 +177,6 @@ class ProductController extends Controller
         return redirect()->route('products.index', app()->getLocale());
     }
 
-
     /**
      * Remove the specified resource from storage.
      *
@@ -223,5 +227,67 @@ class ProductController extends Controller
         }
 
         return redirect()->back()->with('success', "Cleaned up {$deletedCount} missing image records.");
+    }
+
+    /**
+     * Show the form for managing product pages.
+     *
+     * @param Product $product
+     * @return View
+     */
+    public function managePages(Product $product): View
+    {
+        // Get all pages that are not already attached to the product
+        $availablePages = Page::whereDoesntHave('products', function($query) use ($product) {
+            $query->where('product_id', $product->id);
+        })->get();
+
+        return view('admin.product.options.index', [
+            'product' => $product,
+            'availablePages' => $availablePages
+        ]);
+    }
+
+    /**
+     * Attach a page to the product.
+     *
+     * @param Request $request
+     * @param Product $product
+     * @return RedirectResponse
+     */
+    public function attachPage(Request $request, Product $product): RedirectResponse
+    {
+        $request->validate([
+            'page_id' => 'required|exists:pages,id',
+            'sort_order' => 'nullable|integer|min:0'
+        ]);
+
+        // Check if the page is already attached
+        if ($product->pages()->where('page_id', $request->page_id)->exists()) {
+            return back()->with('error', 'This page is already attached to the product.');
+        }
+
+        // Attach the page with sort order
+        $product->pages()->attach($request->page_id, [
+            'sort' => $request->sort_order ?? 0
+        ]);
+
+        return redirect()->route('admin.products.pages.manage', $product->id)
+            ->with('success', 'Page has been added to the product successfully.');
+    }
+
+    /**
+     * Detach a page from the product.
+     *
+     * @param Product $product
+     * @param int $pageId
+     * @return RedirectResponse
+     */
+    public function detachPage(Product $product, int $pageId): RedirectResponse
+    {
+        $product->pages()->detach($pageId);
+
+        return redirect()->route('admin.products.pages.manage', $product->id)
+            ->with('success', 'Page has been removed from the product.');
     }
 }

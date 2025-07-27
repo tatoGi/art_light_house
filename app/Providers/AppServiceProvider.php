@@ -5,8 +5,11 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Services\SlugService;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Schema;
 use App\View\Components\website\layout;
 use App\View\Components\website\header;
+use App\View\Components\LanguageSwitcher;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -28,8 +31,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Register Blade components
         Blade::component('website.layout', layout::class);
-                Blade::component('website.header', header::class);
-
+        Blade::component('website.header', header::class);
+        Blade::component('language-switcher', LanguageSwitcher::class);
+        
+        // Set default string length for migrations
+        Schema::defaultStringLength(191);
     }
 }

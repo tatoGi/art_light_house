@@ -50,7 +50,7 @@
                 <!-- Dropdown menu -->
                 <div id="mobileDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 hidden cursor-pointer">
                     <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('admin.Profile') }}</a>
-                    <a href="/{{ app()->getlocale() }}/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('admin.Logout') }}</a>
+                    <a href="/{{ app()->getlocale() }}/admin/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('admin.Logout') }}</a>
                 </div>
             </div>
             

@@ -7,8 +7,9 @@
 
             <h1 class="text-center mb-5">Create Banner</h1>
 
-            <form action="{{ route('banners.store', app()->getlocale()) }}" method="POST" class="max-w-md mx-auto" enctype="multipart/form-data">
-
+            <form action="{{ route('banners.store',['page_id'=>$page_id, app()->getlocale()]) }}" method="POST" class="max-w-md mx-auto" enctype="multipart/form-data">
+               
+              
                 @csrf
 
                 <!-- category_id -->

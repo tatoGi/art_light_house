@@ -1,25 +1,18 @@
 <?php
 
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProductOptionController;
+use App\Http\Controllers\Admin\PageManagementController;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('/products', ProductController::class);
-Route::get('/products/option/{product_id}', [ProductOptionController::class, 'index'])->name('product.option.index');
-// Route for displaying the form to create a new product option
-Route::get('/products/{product_id}/options/create', [ProductOptionController::class, 'create'])->name('product.option.create');
+// Regular product routes
+Route::resource('/products', ProductController::class)->parameters([
+    'products' => 'product',
+    'page_id' => 'page'
+]);
 
-// Route for storing a new product option
-Route::post('/products/{product_id}/options', [ProductOptionController::class, 'store'])->name('product.option.store');
+// Add specific route for creating products with page_id
+Route::get('/products/create/{page_id?}', [ProductController::class, 'create'])->name('products.create');
 
-// Route for displaying the form to edit an existing product option
-Route::get('/products/{product_id}/options/{option_id}/edit', [ProductOptionController::class, 'edit'])->name('product.option.edit');
+Route::get('/page-management/manage/{page}', [PageManagementController::class, 'manage'])->name('admin.pages.management.manage');
 
-// Route for updating an existing product option (alternative using patch method)
-Route::patch('/products/{product_id}/options/{option_id}', [ProductOptionController::class, 'update'])->name('product.option.update');
-
-// Route for deleting a product option
-Route::delete('/products/{product_id}/options/{option_id}', [ProductOptionController::class, 'destroy'])->name('product.option.destroy');
-
-Route::delete('/products/delete/image/{image_id}', [ProductController::class, 'deleteImage'])->name('products.images.delete');
-Route::get('/products/cleanup-images', [ProductController::class, 'cleanupMissingImages'])->name('products.cleanup-images');
+Route::get('/page-management/index/{page}', [PageManagementController::class, 'index'])->name('admin.pages.management.index');

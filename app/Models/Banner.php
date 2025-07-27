@@ -27,4 +27,11 @@ class Banner extends Model
     {
         return $this->hasMany(BannerImage::class);
     }
+
+    public function pages()
+    {
+        return $this->belongsToMany(Page::class, 'banner_page')
+            ->withPivot('sort')
+            ->orderBy('banner_page.sort');
+    }
 }
