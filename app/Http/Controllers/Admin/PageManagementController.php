@@ -40,8 +40,10 @@ class PageManagementController extends Controller
 
         return view('admin.pages.management.manage', [
             'page' => $page->load(['banners', 'products']),
-            'banners' => $availableBanners,
-            'products' => $availableProducts
+            'banners' => $page->banners()->paginate(5), // Page's current banners
+            'availableBanners' => $availableBanners,   // Available banners to add
+            'products' => $page->products()->with('category')->paginate(5), // Page's current products
+            'availableProducts' => $availableProducts  // Available products to add
         ]);
     }
 

@@ -7,6 +7,7 @@ use App\Models\Language;
 use App\Models\Translation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class LanguageController extends Controller
@@ -121,7 +122,22 @@ class LanguageController extends Controller
 
     public function edit(Language $language)
     {
-        $groups = Translation::distinct()->pluck('group');
+        // Get groups from both database and filesystem translation files
+        $dbGroups = Translation::distinct()->pluck('group')->toArray();
+        
+        // Get groups from filesystem translation files
+        $filesystemGroups = [];
+        $langPath = resource_path('lang/en'); // Use default language path
+        if (is_dir($langPath)) {
+            $files = glob($langPath . '/*.php');
+            foreach ($files as $file) {
+                $filesystemGroups[] = basename($file, '.php');
+            }
+        }
+        
+        // Merge and get unique groups
+        $groups = collect(array_merge($dbGroups, $filesystemGroups))->unique()->sort()->values();
+        
         $translations = $language->translations()
             ->orderBy('group')
             ->orderBy('key')
@@ -196,12 +212,31 @@ class LanguageController extends Controller
         if ($language->is_default) {
             return back()->with('error', __('Cannot delete default language.'));
         }
+        
+        try {
+            // Store the language code before deletion
+            $languageCode = $language->code;
+            
+            // Delete the language (cascade will handle translations)
+            $deleted = $language->delete();
+            
+            if (!$deleted) {
+                return back()->with('error', __('Failed to delete language. Please try again.'));
+            }
+            
+            // Remove the language code from config/app.php locales array
+            $this->updateAppLocales('', $languageCode);
+            
+            // Clear all language-related caches
+            $this->clearCache();
 
-        $language->delete();
-        $this->clearCache();
-
-        return redirect()->route('admin.languages.index', ['locale' => app()->getLocale()])
-            ->with('success', __('Language deleted successfully.'));
+            return redirect()->route('admin.languages.index', ['locale' => app()->getLocale()])
+                ->with('success', __('Language deleted successfully.'));
+                
+        } catch (\Exception $e) {
+            Log::error('Language deletion failed: ' . $e->getMessage());
+            return back()->with('error', __('Failed to delete language: ') . $e->getMessage());
+        }
     }
 
     public function updateTranslations(Request $request, Language $language)
@@ -291,10 +326,12 @@ class LanguageController extends Controller
             ->with('info', 'All default languages are already added.');
     }
 
-    protected function clearCache()
+    public function clearCache()
     {
+        Cache::forget('active_languages');
         Cache::forget('languages.active');
         Cache::forget('languages.default');
+        Cache::forget('default_language');
     }
     
     /**
@@ -331,8 +368,8 @@ class LanguageController extends Controller
             $locales = array_diff($locales, [$oldCode]);
         }
         
-        // Add new language code if it doesn't exist
-        if (!in_array($newCode, $locales)) {
+        // Add new language code if it doesn't exist and is not empty
+        if (!empty($newCode) && !in_array($newCode, $locales)) {
             $locales[] = $newCode;
         }
         
@@ -357,8 +394,8 @@ class LanguageController extends Controller
     protected function copyDefaultTranslations($languageCode)
     {
         $defaultLang = 'en'; // Default language to copy from
-        $sourcePath = lang_path($defaultLang);
-        $targetPath = lang_path($languageCode);
+        $sourcePath = resource_path("lang/{$defaultLang}");
+        $targetPath = resource_path("lang/{$languageCode}");
         
         // Create target directory if it doesn't exist
         if (!file_exists($targetPath)) {
@@ -377,12 +414,48 @@ class LanguageController extends Controller
         }
         
         // Also copy JSON translation file if it exists
-        $jsonFile = lang_path("{$defaultLang}.json");
+        $jsonFile = resource_path("lang/{$defaultLang}.json");
         if (file_exists($jsonFile)) {
-            $targetJson = lang_path("{$languageCode}.json");
+            $targetJson = resource_path("lang/{$languageCode}.json");
             if (!copy($jsonFile, $targetJson)) {
                 throw new \RuntimeException("Failed to copy JSON translation file to {$targetJson}");
             }
         }
+    }
+    
+    /**
+     * Export database translations to filesystem files
+     */
+    public function exportTranslations(Language $language)
+    {
+        $translations = $language->translations()->get()->groupBy('group');
+        
+        foreach ($translations as $group => $groupTranslations) {
+            $langPath = resource_path("lang/{$language->code}");
+            
+            // Create directory if it doesn't exist
+            if (!file_exists($langPath)) {
+                mkdir($langPath, 0755, true);
+            }
+            
+            $filePath = "{$langPath}/{$group}.php";
+            
+            // Load existing translations from file
+            $existingTranslations = [];
+            if (file_exists($filePath)) {
+                $existingTranslations = include $filePath;
+            }
+            
+            // Merge database translations with existing file translations
+            foreach ($groupTranslations as $translation) {
+                $existingTranslations[$translation->key] = $translation->value;
+            }
+            
+            // Write the updated translations back to the file
+            $content = "<?php\n\nreturn " . var_export($existingTranslations, true) . ";\n";
+            file_put_contents($filePath, $content);
+        }
+        
+        return response()->json(['success' => true, 'message' => 'Translations exported successfully']);
     }
 }

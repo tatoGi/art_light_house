@@ -104,9 +104,14 @@
                             <input type="text" id="translation-search" placeholder="Search translations..." 
                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
-                        <button id="add-translation" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            Add New Translation
-                        </button>
+                        <div class="flex space-x-2">
+                            <button id="add-translation" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                Add New Translation
+                            </button>
+                            <button id="export-translations" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Export to Files
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -318,6 +323,35 @@
                     }
                 });
             }
+
+            // Export translations to files
+            const exportButton = document.getElementById('export-translations');
+            exportButton.addEventListener('click', function() {
+                if (confirm('Export database translations to filesystem files? This will update the translation files.')) {
+                    const url = '{{ route('admin.languages.export', ['locale' => app()->getLocale(), 'language' => $language]) }}';
+                    
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Translations exported successfully! The translation files have been updated.');
+                        } else {
+                            alert('Error exporting translations');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error exporting translations');
+                    });
+                }
+            });
 
             // Close modal when clicking cancel or outside
             cancelButton.addEventListener('click', closeModal);
