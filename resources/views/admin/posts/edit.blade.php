@@ -34,29 +34,7 @@
             <div class="bg-white rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('admin.Basic Information') }}</h3>
                 
-                {{-- Post Type Selection for Homepage Posts --}}
-                @if($page->type_id == 1)
-                <div class="mb-4">
-                    <label for="post_type" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-tags mr-2"></i>{{ __('admin.Post Type') }} <span class="text-red-500">*</span>
-                    </label>
-                    <select name="post_type" id="post_type" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                        <option value="">{{ __('admin.Select Post Type') }}</option>
-                        <option value="join_us" {{ old('post_type', $existingAttributes['post_type'] ?? '') == 'join_us' ? 'selected' : '' }}>
-                            {{ __('admin.Join Us Section') }}
-                            <span class="text-gray-500">- გამოიმუშავე დამატებითი</span>
-                        </option>
-                        <option value="rental_steps" {{ old('post_type', $existingAttributes['post_type'] ?? '') == 'rental_steps' ? 'selected' : '' }}>
-                            {{ __('admin.Rental Steps') }}
-                            <span class="text-gray-500">- იქირავე შენთვის სასურველი</span>
-                        </option>
-                    </select>
-                    <p class="text-sm text-gray-600 mt-1">
-                        <i class="fas fa-info-circle mr-1"></i>
-                        {{ __('admin.Select the type of homepage post to show relevant fields') }}
-                    </p>
-                </div>
-                @endif
+                {{-- Single homepage post: no post_type selector --}}
 
                 {{-- Category Selection for Blog Posts --}}
                 @if($page->type_id == 2)
@@ -134,9 +112,7 @@
                     <div class="post-language-content {{ !$loop->first ? 'hidden' : '' }}" data-locale="{{ $locale }}" id="lang-content-{{ $locale }}">
                         <div class="grid grid-cols-1 gap-4">
                             @foreach($translatableAttributes as $key => $config)
-                            <div class="field-group" 
-                                 data-show-for-types="{{ isset($config['show_for_types']) ? json_encode($config['show_for_types']) : '[]' }}"
-                                 style="{{ isset($config['show_for_types']) && !in_array($existingAttributes['post_type'] ?? '', $config['show_for_types'] ?? []) ? 'display: none;' : '' }}">
+                            <div class="field-group">
                                 <label for="{{ $locale }}_{{ $key }}" class="block text-sm font-medium text-gray-700 mb-2">
                                     {{ $config['label'] ?? ucfirst($key) }}
                                     @if($config['required'] ?? false)
@@ -181,9 +157,7 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @foreach($nonTranslatableAttributes as $key => $config)
-                        <div class="{{ $config['type'] === 'editor' ? 'md:col-span-2' : '' }} field-group" 
-                             data-show-for-types="{{ isset($config['show_for_types']) ? json_encode($config['show_for_types']) : '[]' }}"
-                             style="{{ isset($config['show_for_types']) && !in_array($existingAttributes['post_type'] ?? '', $config['show_for_types'] ?? []) ? 'display: none;' : '' }}">
+                        <div class="{{ $config['type'] === 'editor' ? 'md:col-span-2' : '' }} field-group">
                             <label for="{{ $key }}" class="block text-sm font-medium text-gray-700 mb-2">
                                 {{ $config['label'] ?? ucfirst($key) }}
                                 @if($config['required'] ?? false)
@@ -278,45 +252,7 @@
     </div>
 
     <script>
-        // Toggle fields based on post type selection
-        function togglePostTypeFields() {
-            const postTypeSelect = document.getElementById('post_type');
-            if (!postTypeSelect) return;
-            
-            const selectedType = postTypeSelect.value;
-            console.log('Selected post type:', selectedType);
-            
-            // Get all field groups (both translatable and non-translatable)
-            const fieldGroups = document.querySelectorAll('.field-group');
-            
-            fieldGroups.forEach(group => {
-                const showForTypes = group.getAttribute('data-show-for-types');
-                
-                if (showForTypes) {
-                    try {
-                        const types = JSON.parse(showForTypes);
-                        // If no post type is selected (empty string or "0"), hide fields with restrictions
-                        // If a post type is selected, show only fields that include that type
-                        if (!selectedType || selectedType === '' || selectedType === '0') {
-                            group.style.display = 'none';
-                            console.log('Hiding field group, no post type selected');
-                        } else if (types.includes(selectedType)) {
-                            group.style.display = '';
-                            console.log('Showing field group for type:', selectedType);
-                        } else {
-                            group.style.display = 'none';
-                            console.log('Hiding field group, not for type:', selectedType);
-                        }
-                    } catch (e) {
-                        console.error('Error parsing show_for_types:', e);
-                        group.style.display = '';
-                    }
-                } else {
-                    // Show fields without restrictions
-                    group.style.display = '';
-                }
-            });
-        }
+        // Single-post homepage: no post_type toggling
 
         function switchPostLanguageTab(locale) {
             console.log('=== SWITCHING POST LANGUAGE TAB ===');
@@ -433,12 +369,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded - Initializing components');
             
-            // Initialize post type field toggling
-            const postTypeSelect = document.getElementById('post_type');
-            if (postTypeSelect) {
-                postTypeSelect.addEventListener('change', togglePostTypeFields);
-                setTimeout(togglePostTypeFields, 100);
-            }
+            // No post_type field to initialize
             
             // Initialize language tabs with multiple fallback methods
             initializeLanguageTabs();

@@ -92,6 +92,12 @@ class PageTypeService
     {
         $config = self::getPageTypeConfig($typeId);
         
+        // If this page type is configured as a single_post, prefer explicit post_attributes
+        if ($config && ($config['single_post'] ?? false)) {
+            $attributes = self::getPostAttributes($typeId);
+            return $attributes['translatable'] ?? [];
+        }
+
         // If using new section_types structure, convert to legacy format
         if (isset($config['section_types'])) {
             $translatable = [];
@@ -118,6 +124,12 @@ class PageTypeService
     {
         $config = self::getPageTypeConfig($typeId);
         
+        // If this page type is configured as a single_post, prefer explicit post_attributes
+        if ($config && ($config['single_post'] ?? false)) {
+            $attributes = self::getPostAttributes($typeId);
+            return $attributes['non_translatable'] ?? [];
+        }
+
         // If using new section_types structure, convert to legacy format
         if (isset($config['section_types'])) {
             $nonTranslatable = [];

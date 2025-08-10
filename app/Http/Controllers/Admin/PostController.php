@@ -38,6 +38,18 @@ class PostController extends Controller
             return redirect()->back()->with('error', 'This page type does not support posts.');
         }
 
+        // Enforce single post for homepage
+        if ($page->type_id == 1) {
+            $existing = $page->posts()->first();
+            if ($existing) {
+                return redirect()->route('admin.pages.posts.edit', [
+                    'locale' => app()->getLocale(),
+                    'page'   => $page->id,
+                    'post'   => $existing->id,
+                ]);
+            }
+        }
+
         $pageTypeConfig = $page->getPageTypeConfig();
         $translatableAttributes = PageTypeService::getTranslatableAttributes($page->type_id);
         $nonTranslatableAttributes = PageTypeService::getNonTranslatableAttributes($page->type_id);
@@ -55,12 +67,14 @@ class PostController extends Controller
             return redirect()->back()->with('error', 'This page type does not support posts.');
         }
 
-        // Get validation rules from PageTypeService, filtered by post type for homepage posts
-        if ($page->type_id == 1 && $request->has('post_type')) {
-            $rules = PageTypeService::getFilteredValidationRules($page->type_id, $request->post_type);
-        } else {
-            $rules = PageTypeService::getValidationRules($page->type_id);
+        // Enforce single post for homepage
+        if ($page->type_id == 1 && $page->posts()->exists()) {
+            return redirect()->route('admin.pages.posts.index', ['locale' => app()->getLocale(), 'page' => $page->id])
+                ->with('error', 'Homepage already has a post.');
         }
+
+        // Use general validation rules (single_post config will handle homepage)
+        $rules = PageTypeService::getValidationRules($page->type_id);
         $rules['published_at'] = 'nullable|date';
         $rules['active'] = 'boolean';
         $rules['sort_order'] = 'nullable|integer';
@@ -142,25 +156,8 @@ class PostController extends Controller
             return redirect()->back()->with('error', 'Invalid post or page.');
         }
 
-        // Get validation rules from PageTypeService
-        // For homepage posts (type_id == 1), filter rules by post_type to avoid validating unrelated fields
-        if ($page->type_id == 1) {
-            // Prefer the incoming post_type, otherwise use the stored attribute value
-            $effectivePostType = $request->input('post_type');
-            if (!$effectivePostType) {
-                $effectivePostType = PostAttribute::where('post_id', $post->id)
-                    ->where('attribute_key', 'post_type')
-                    ->whereNull('locale')
-                    ->value('attribute_value');
-            }
-            if ($effectivePostType) {
-                $rules = PageTypeService::getFilteredValidationRules($page->type_id, $effectivePostType);
-            } else {
-                $rules = PageTypeService::getValidationRules($page->type_id);
-            }
-        } else {
-            $rules = PageTypeService::getValidationRules($page->type_id);
-        }
+        // Use general validation rules (single_post config will handle homepage)
+        $rules = PageTypeService::getValidationRules($page->type_id);
         // For update: make image fields optional to allow keeping existing image without re-upload
         $nonTranslatableAttributes = PageTypeService::getNonTranslatableAttributes($page->type_id);
         foreach ($nonTranslatableAttributes as $key => $config) {
@@ -303,19 +300,7 @@ class PostController extends Controller
             }
         }
         
-        // Always save post_type for homepage posts, regardless of filtering
-        if ($pageTypeId == 1 && $request->has('post_type')) {
-            PostAttribute::updateOrCreate(
-                [
-                    'post_id' => $post->id,
-                    'attribute_key' => 'post_type',
-                    'locale' => null
-                ],
-                [
-                    'attribute_value' => $request->input('post_type')
-                ]
-            );
-        }
+        // No longer save post_type for homepage posts in single_post mode
     }
     private function deletePostFiles(Post $post, $pageTypeId)
     {

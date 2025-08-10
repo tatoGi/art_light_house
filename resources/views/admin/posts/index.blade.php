@@ -13,11 +13,29 @@
                     <i class="fas fa-arrow-left mr-2"></i>
                     {{ __('admin.Back to Page') }}
                 </a>
-                <a href="{{ route('admin.pages.posts.create', ['locale' => app()->getLocale(), 'page' => $page->id]) }}"
-                   class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
-                    <i class="fas fa-plus mr-2"></i>
-                    {{ __('admin.Add Post') }}
-                </a>
+                @php $isHome = ($page->type_id == 1); @endphp
+                @if($isHome)
+                    @if($posts->count() == 0)
+                        <a href="{{ route('admin.pages.posts.create', ['locale' => app()->getLocale(), 'page' => $page->id]) }}"
+                           class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            {{ __('admin.Add Post') }}
+                        </a>
+                    @else
+                        @php $first = $posts->first(); @endphp
+                        <a href="{{ route('admin.pages.posts.edit', ['locale' => app()->getLocale(), 'page' => $page->id, 'post' => $first->id]) }}"
+                           class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                            <i class="fas fa-edit mr-2"></i>
+                            {{ __('admin.Edit Homepage') }}
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('admin.pages.posts.create', ['locale' => app()->getLocale(), 'page' => $page->id]) }}"
+                       class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        {{ __('admin.Add Post') }}
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -117,10 +135,11 @@
                     <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
                     <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('admin.No posts yet') }}</h3>
                     <p class="text-gray-500 mb-6">{{ __('admin.Create your first post to get started') }}</p>
+                    @php $isHome = ($page->type_id == 1); @endphp
                     <a href="{{ route('admin.pages.posts.create', ['locale' => app()->getLocale(), 'page' => $page->id]) }}"
                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg inline-flex items-center transition-colors">
                         <i class="fas fa-plus mr-2"></i>
-                        {{ __('admin.Create First Post') }}
+                        {{ $isHome ? __('admin.Create Homepage') : __('admin.Create First Post') }}
                     </a>
                 </div>
             @endif
