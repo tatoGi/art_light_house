@@ -16,17 +16,18 @@
                     <!-- Basic Information -->
                     <div class="bg-white rounded-lg shadow-sm p-6">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
-                        
                         <!-- Category Selection -->
                         <div class="mb-4">
                             <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-folder mr-2"></i>{{ __('admin.Category') }}
+                                {{ __('admin.Category') }}
+                                <span class="text-gray-400 text-xs">({{ __('admin.Optional') }})</span>
                             </label>
-                            <select name="category_id" id="category_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                <option value="">{{ __('admin.Select Category') }} ({{ __('admin.Optional') }})</option>
+                            <select name="category_id" id="category_id"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">{{ __('admin.Select Category') }}</option>
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
-                                        {{ $category->title }}
+                                        {{ $category->title ?? '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -35,6 +36,19 @@
                             @enderror
                         </div>
 
+                        <!-- Sort Order -->
+                        <div class="mb-4">
+                            <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ __('admin.Sort Order') }}
+                            </label>
+                            <input type="number" name="sort_order" id="sort_order" min="0" step="1"
+                                   value="{{ old('sort_order', $product->sort_order ?? 0) }}"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            @error('sort_order')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        
                         <!-- Product Identify ID -->
                         <div class="mb-4">
                             <label for="product_identify_id" class="block text-sm font-medium text-gray-700 mb-2">
@@ -49,53 +63,27 @@
                             @enderror
                         </div>
 
-                        <!-- Features: Size (Location and Color are now translatable) -->
-                        <div class="mb-4">
+                        <!-- Price, Sort Order, and Status -->
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
                             <div>
-                                <label for="size" class="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                                <input type="text" name="size" id="size"
-                                    value="{{ old('size', $product->size) }}"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('size') border-red-500 @enderror"
-                                    placeholder="e.g., S, M, L, XL">
-                                @error('size')
+                                <label for="price" class="block font-medium text-gray-700">
+                                    <span class="text-red-500">*</span>Price
+                                </label>
+                                <input type="text" name="price" id="price"
+                                    class="border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error('price') border-red-500 @enderror"
+                                    value="{{ old('price', $product->price) }}" placeholder="e.g., 99.99">
+                                @error('price')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
 
-                        <!-- Price, Sort Order, and Status -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
-                                    <span class="text-red-500">*</span>Price
-                                </label>
-                                <input type="text" name="price" id="price"
-                                    value="{{ old('price', $product->price) }}"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('price') border-red-500 @enderror"
-                                    placeholder="e.g., 99.99">
-                                @error('price')
-                                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            
-                            <div>
-                                <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
-                                <input type="number" name="sort_order" id="sort_order"
-                                    value="{{ old('sort_order', $product->sort_order) }}"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('sort_order') border-red-500 @enderror"
-                                    min="0">
-                                @error('sort_order')
-                                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="active" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                <select name="active" id="active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                    <option value="1" {{ old('active', $product->active) == '1' ? 'selected' : '' }}>{{ __('admin.Active') }}</option>
-                                    <option value="0" {{ old('active', $product->active) == '0' ? 'selected' : '' }}>{{ __('admin.Inactive') }}</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label for="active" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select name="active" id="active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="1" {{ old('active', $product->active) == '1' ? 'selected' : '' }}>{{ __('admin.Active') }}</option>
+                                <option value="0" {{ old('active', $product->active) == '0' ? 'selected' : '' }}>{{ __('admin.Inactive') }}</option>
+                            </select>
                         </div>
                     </div>
 
@@ -135,71 +123,6 @@
                                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error($locale . '.title') border-red-500 @enderror"
                                                placeholder="{{ __('admin.Title') }}">
                                         @error($locale . '.title')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Slug -->
-                                    <div>
-                                        <label for="{{ $locale }}_slug" class="block text-sm font-medium text-gray-700 mb-2">
-                                            {{ __('admin.Slug') }} ({{ __('admin.locale_' . $locale) }})
-                                            <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="text" 
-                                               name="{{ $locale }}[slug]" 
-                                               id="{{ $locale }}_slug"
-                                               value="{{ old($locale . '.slug', $product->translate($locale)->slug ?? '') }}"
-                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error($locale . '.slug') border-red-500 @enderror"
-                                               placeholder="URL Keyword">
-                                        @error($locale . '.slug')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Brand -->
-                                    <div>
-                                        <label for="{{ $locale }}_brand" class="block text-sm font-medium text-gray-700 mb-2">
-                                            Brand ({{ __('admin.locale_' . $locale) }})
-                                        </label>
-                                        <input type="text" 
-                                               name="{{ $locale }}[brand]" 
-                                               id="{{ $locale }}_brand"
-                                               value="{{ old($locale . '.brand', $product->translate($locale)->brand ?? '') }}"
-                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error($locale . '.brand') border-red-500 @enderror"
-                                               placeholder="Brand name">
-                                        @error($locale . '.brand')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Location -->
-                                    <div>
-                                        <label for="{{ $locale }}_location" class="block text-sm font-medium text-gray-700 mb-2">
-                                            Location ({{ __('admin.locale_' . $locale) }})
-                                        </label>
-                                        <input type="text" 
-                                               name="{{ $locale }}[location]" 
-                                               id="{{ $locale }}_location"
-                                               value="{{ old($locale . '.location', $product->translate($locale)->location ?? '') }}"
-                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error($locale . '.location') border-red-500 @enderror"
-                                               placeholder="e.g., Warehouse A, Shelf 12">
-                                        @error($locale . '.location')
-                                            <span class="text-red-500 text-sm">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <!-- Color -->
-                                    <div>
-                                        <label for="{{ $locale }}_color" class="block text-sm font-medium text-gray-700 mb-2">
-                                            Color ({{ __('admin.locale_' . $locale) }})
-                                        </label>
-                                        <input type="text" 
-                                               name="{{ $locale }}[color]" 
-                                               id="{{ $locale }}_color"
-                                               value="{{ old($locale . '.color', $product->translate($locale)->color ?? '') }}"
-                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error($locale . '.color') border-red-500 @enderror"
-                                               placeholder="e.g., Red, Blue, Black">
-                                        @error($locale . '.color')
                                             <span class="text-red-500 text-sm">{{ $message }}</span>
                                         @enderror
                                     </div>

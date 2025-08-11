@@ -1,19 +1,22 @@
 <x-admin.admin-layout>
 
-    <div class="flex flex-wrap my-5 -mx-2">
+    <div class="flex flex-wrap my-6 -mx-2">
 
-        <div class="w-full bg-white mt-2 mb-2 rounded-md p-4 mx-auto">
+        <div class="w-full max-w-5xl bg-white mt-2 mb-2 rounded-xl p-6 mx-auto shadow ring-1 ring-gray-100">
 
-            <h1 class="text-center mb-5">Create Pages</h1>
+            <div class="mb-6 text-center">
+                <h1 class="text-2xl font-semibold text-gray-800">Create Page</h1>
+                <p class="text-sm text-gray-500 mt-1">Fill the fields below to add a new page content in multiple languages.</p>
+            </div>
 
-            <form action="{{ route('pages.store', app()->getlocale()) }}" method="POST" class="max-w-md mx-auto"
+            <form action="{{ route('pages.store', app()->getlocale()) }}" method="POST" class="max-w-4xl mx-auto"
                 enctype="multipart/form-data">
 
                 @csrf
 
                 <!-- category_id -->
 
-                <div class="rounded  w-full mx-auto mt-4">
+                <div class="rounded w-full mx-auto mt-4">
 
                     <!-- Tabs -->
 
@@ -21,7 +24,7 @@
 
                     <div class="language-selector">
 
-                        <ul id="tabs" class="language-selector-list">
+                        <ul id="tabs" class="language-selector-list flex items-center gap-2 border-b border-gray-200">
 
                             @foreach (config('app.locales') as $locale)
 
@@ -33,9 +36,9 @@
 
                             <li class="language-selector-item border-red-600">
 
-                                @endif
+                            @endif
 
-                                <a href="#locale-{{ $locale }}" class="language-selector-link">
+                                <a href="#locale-{{ $locale }}" class="language-selector-link inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-t-lg">
 
                                    
 
@@ -60,15 +63,25 @@
 
                 <div class="mb-4">
 
-                    <ul class="list-disc list-inside text-red-500">
-
-                        @foreach ($errors->all() as $error)
-
-                        <li>{{ $error }}</li>
-
-                        @endforeach
-
-                    </ul>
+                    <div class="rounded-md bg-red-50 p-4 border border-red-200 @if(!$errors->any()) hidden @endif">
+                        <div class="flex">
+                            <div class="shrink-0">
+                                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303.78a11.955 11.955 0 010-3.06C3.24 5.604 7.24 2.25 12 2.25c4.76 0 8.76 3.354 9.303 7.22.07.51.07 1.03 0 1.54-.543 3.866-4.543 7.22-9.303 7.22-4.76 0-8.76-3.354-9.303-7.22zM12 15.75h.008v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">There were some problems with your input</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul class="list-disc list-inside">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -77,18 +90,18 @@
 
                     @foreach (config('app.locales') as $locale)
 
-                    <div id="locale-{{ $locale }}" class=" @if ($locale !== app()->getLocale()) hidden @endif p-4">
+                    <div id="locale-{{ $locale }}" class=" @if ($locale !== app()->getLocale()) hidden @endif p-4 bg-gray-50/40 rounded-lg border border-gray-100 mt-4">
 
-                        <div class="flex flex-col w-full items-center justify-center mb-2">
+                        <div class="flex flex-col w-full items-start justify-center mb-4 mt-4">
 
-                            <label for="title_{{ $locale }}" class="text-sm font-medium"><span
-                                    class="text-red-500">*</span>Title ( {{ __('admin.locale_' . $locale) }})</label>
+                            <label for="title_{{ $locale }}" class="text-sm font-medium text-gray-700"><span
+                                    class="text-red-500">*</span> Title ( {{ __('admin.locale_' . $locale) }})</label>
 
                             <input type="text" name="{{ $locale }}[title]" id="title_{{ $locale }}"
-                                class="border w-full text-sm rounded-lg block p-2.5 @error('title_' . $locale) border-red-500 @enderror"
+                                class="mt-1 border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error($locale . '.title') border-red-500 ring-1 ring-red-200 @enderror"
                                 placeholder="Title">
 
-                            @error('title_' . $locale)
+                            @error($locale . '.title')
 
                             <span class="text-red-500 text-sm">{{ $message }}</span>
 
@@ -98,18 +111,18 @@
 
 
 
-                        <div class="flex w-fulls items-center justify-center flex-col mb-2">
+                        <div class="flex w-full items-start justify-center flex-col mb-4">
 
-                            <label for="slug_{{ $locale }}" class="text-sm font-medium"><span
-                                    class="text-red-500">*</span>URL Keyword
+                            <label for="slug_{{ $locale }}" class="text-sm font-medium text-gray-700"><span
+                                    class="text-red-500">*</span> URL Keyword
 
                                 ( {{ __('admin.locale_' . $locale) }})</label>
 
                             <input type="text" name="{{ $locale }}[slug]" id="slug_{{ $locale }}"
-                                class="border w-full text-sm rounded-lg block  p-2.5 @error('slug_' . $locale) border-red-500 @enderror"
+                                class="mt-1 border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error($locale . '.slug') border-red-500 ring-1 ring-red-200 @enderror"
                                 placeholder="URL Keyword">
 
-                            @error('slug_' . $locale)
+                            @error($locale . '.slug')
 
                             <span class="text-red-500 text-sm">{{ $message }}</span>
 
@@ -119,11 +132,12 @@
 
                         <div class="mb-4">
 
-                            <label for="keywords" class="block font-medium text-gray-700">Keywords (
+                            <label for="keywords" class="block text-sm font-medium text-gray-700">Keywords (
                                 {{ __('admin.locale_' . $locale) }})</label>
 
                             <input type="text" id="keywords_{{ $locale }}" name="{{ $locale }}[keywords]"
-                                class="border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2">
+                                class="mt-1 border-gray-300 py-2 
+                              focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2">
 
                             <p class="text-sm text-gray-500">Enter keywords separated by commas (e.g., keyword1,
                                 keyword2, keyword3)</p>
@@ -136,24 +150,18 @@
 
                         </div>
 
-                        <div class="flex w-full items-center justify-center flex-col mb-2">
+                        <div class="flex w-full items-start justify-center flex-col mb-2">
 
-                            <label for="description_{{ $locale }}"
-                                class="text-sm font-medium text-gray-900 dark:text-gray-400"><span
-                                    class="text-red-500">*</span>Description
+                            <label for="description_{{ $locale }}" class="text-sm font-medium text-gray-700"><span
+                                    class="text-red-500">*</span> Description
 
                                 ( {{ __('admin.locale_' . $locale) }})</label>
 
-                            <textarea id="description_{{ $locale }}" name="{{ $locale }}[desc]" rows="4" class="border w-full text-sm text-gray-900 rounded-lg border-gray-300 focus:ring-blue-500
-
-                                 focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black
-
-                                  dark:focus:ring-blue-500 dark:focus:border-blue-500 p-2.5 
-
-                                 @error('description_' . $locale) border-red @enderror"
+                            <textarea id="description_{{ $locale }}" name="{{ $locale }}[desc]"
+                                class="w-full border rounded-lg p-4 mt-2 bg-white focus:ring-indigo-500 focus:border-indigo-500 @error($locale . '.desc') border-red ring-1 ring-red-200 @enderror"
                                 placeholder="Description"></textarea>
 
-                            @error('description_' . $locale)
+                            @error($locale . '.desc')
 
                             <span class="text-red-500 text-sm">{{ $message }}</span>
 
@@ -171,13 +179,13 @@
 
                 <!-- sort -->
 
-                <div class="flex s justify-center items-center flex-col mb-2">
+                <div class="flex justify-center items-center flex-col mb-4 mt-4">
 
                     <label for="type"
                         class="text-sm font-medium text-gray-900 dark:text-gray-400">{{ trans('admin.type') }}</label>
 
                     <select id="type" name="type_id"
-                        class="border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500 mt-2">
+                        class="mt-1 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block  p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:text-black">
 
                         <option value="">{{ trans('admin.type') }}</option>
 
@@ -193,9 +201,9 @@
 
                 <!-- active -->
 
-                <div class="flex flex-col mb-2">
+                <div class="flex flex-col mb-4 mt-4">
 
-                    <label class="text-xl mr-2 mb-2 text-cyan-400 font-bold"> Active </label>
+                    <label class="text-sm mr-2 mb-2 text-gray-700 font-medium">Active</label>
 
 
 
@@ -205,17 +213,17 @@
 
                         <label for="switch" class="hidden"></label>
 
-                        <div class="peer h-6 w-12 rounded-full border bg-slate-200 
+                        <div class="peer h-6 w-12 rounded-full border bg-gray-300 
 
                     after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 
 
-                    after:rounded-full after:border after:border-gray-300 after:bg-cyan-500
+                    after:rounded-full after:border after:border-gray-300 after:bg-white
 
                     after:transition-all after:content-['']
 
-                     peer-checked:bg-slate-800 peer-checked:after:translate-x-full
+                     peer-checked:bg-indigo-500 peer-checked:after:translate-x-full
 
-                      peer-checked:after:border-white peer-focus:ring-green-300">
+                      peer-checked:after:border-white peer-focus:ring-indigo-300">
 
                         </div>
 
@@ -243,19 +251,28 @@
 
         </div> --}}
 
-        <div class="flex justify-between">
+        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
 
             <div class="mb-4">
 
-                <button type="submit" class="bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600">Create
-                    Page</button>
+                <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Create Page
+                </button>
 
             </div>
 
             <div>
 
-                <a href="/{{app()->getlocale()}}/admin/products"
-                    class="bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600">Back</a>
+                <a href="{{ route('pages.index', app()->getlocale()) }}"
+                    class="inline-flex items-center gap-2 bg-white text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4A1 1 0 018.707 6.707L6.414 9H17a1 1 0 110 2H6.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Back
+                </a>
 
             </div>
 

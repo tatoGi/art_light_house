@@ -1,190 +1,201 @@
 <x-admin.admin-layout> 
 
 
-    <div class="flex flex-wrap my-5 -mx-2">
+    <div class="flex flex-wrap my-6 -mx-2">
 
-        <div class="w-1/2 bg-white mt-2 mb-2 rounded-md p-4 mx-auto">
+        <div class="w-full max-w-5xl bg-white mt-2 mb-2 rounded-xl p-6 mx-auto shadow ring-1 ring-gray-100">
 
-            <h1 class="text-center mb-5">Create Banner</h1>
+            <div class="mb-6 text-center">
+                <h1 class="text-2xl font-semibold text-gray-800">Create Banner</h1>
+                <p class="text-sm text-gray-500 mt-1">Fill the fields below to add a new banner in multiple languages.</p>
+            </div>
 
-            <form action="{{ route('banners.store',['page_id'=>$page_id, app()->getlocale()]) }}" method="POST" class="max-w-md mx-auto" enctype="multipart/form-data">
-               
-              
+            <form action="{{ route('banners.store',['page_id'=>$page_id, app()->getlocale()]) }}" method="POST" class="max-w-4xl mx-auto" enctype="multipart/form-data">
+
+
                 @csrf
 
                 <!-- category_id -->
 
-                <div class="rounded  w-full mx-auto mt-4">
+                <div class="rounded w-full mx-auto mt-4">
 
                     <!-- Tabs -->
 
-                    
+
 
                     <div class="language-selector">
 
-                        <ul id="tabs" class="language-selector-list">
+                        <ul id="tabs" class="language-selector-list flex items-center gap-2 border-b border-gray-200">
 
                             @foreach (config('app.locales') as $locale)
-
-                                @if($locale === 'en') 
-
+                                @if ($locale === 'en')
                                     <li class="language-selector-item border-cyan-500">
-
-                                @elseif($locale === 'ka')
-
+                                    @elseif($locale === 'ka')
                                     <li class="language-selector-item border-red-600">
-
                                 @endif
 
-                                    <a href="#locale-{{ $locale }}" class="language-selector-link">
+                                <a href="#locale-{{ $locale }}" class="language-selector-link inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-t-lg">
 
-                                        <!-- You can use small icons here for each language -->
+                                    <!-- You can use small icons here for each language -->
 
-                                     
 
-                                        <span class="language-name">{{ __('admin.locale_' . $locale) }}</span>
 
-                                    </a>
+                                    <span class="language-name">{{ __('admin.locale_' . $locale) }}</span>
+
+                                </a>
 
                                 </li>
-
                             @endforeach
 
                         </ul>
 
-                        
+
 
                     </div>
 
-    
+
 
                 </div>
+
+                {{-- Validation errors --}}
+                @if ($errors->any())
+                <div class="mb-4">
+                    <div class="rounded-md bg-red-50 p-4 border border-red-200">
+                        <div class="flex">
+                            <div class="shrink-0">
+                                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303.78a11.955 11.955 0 010-3.06C3.24 5.604 7.24 2.25 12 2.25c4.76 0 8.76 3.354 9.303 7.22.07.51.07 1.03 0 1.54-.543 3.866-4.543 7.22-9.303 7.22-4.76 0-8.76-3.354-9.303-7.22zM12 15.75h.008v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">There were some problems with your input</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <ul class="list-disc list-inside">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 <div id="tab-contents">
 
                     @foreach (config('app.locales') as $locale)
-
                         <div id="locale-{{ $locale }}"
+                            class=" @if ($locale !== app()->getLocale()) hidden @endif p-4 bg-gray-50/40 rounded-lg border border-gray-100 mt-4">
 
-                            class=" @if ($locale !== app()->getLocale()) hidden @endif p-4">
+                            <div class="flex flex-col w-full items-start justify-center mb-4">
 
-                            <div class="flex flex-col w-full items-center justify-center mb-2">
+                                <label for="title_{{ $locale }}" class="text-sm font-medium text-gray-700"><span
+                                        class="text-red-500">*</span> Title ( {{ __('admin.locale_' . $locale) }})</label>
 
-                                <label for="title_{{ $locale }}" class="text-sm font-medium"><span
-
-                                        class="text-red-500">*</span>Title ( {{ __('admin.locale_' . $locale) }})</label>
-
-                                <input type="text" name="{{ $locale }}[title]"
-
-                                    id="title_{{ $locale }}"
-
-                                    class="border w-full text-sm rounded-lg block p-2.5 @error('title_' . $locale) border-red-500 @enderror"
-
+                                <input type="text" name="{{ $locale }}[title]" id="title_{{ $locale }}"
+                                    class="mt-1 border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error('title_' . $locale) border-red-500 ring-1 ring-red-200 @enderror"
                                     placeholder="Title">
 
                                 @error('title_' . $locale)
-
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
-
                                 @enderror
 
                             </div>
 
-    
+                            <div class="flex w-full items-start justify-center flex-col mb-4">
+                                <label for="btn_text_{{ $locale }}" class="text-sm font-medium text-gray-700">Button Text ( {{ __('admin.locale_' . $locale) }} )</label>
+                                <input type="text" name="{{ $locale }}[btn_text]" id="btn_text_{{ $locale }}"
+                                       class="mt-1 border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error($locale . '.btn_text') border-red-500 ring-1 ring-red-200 @enderror"
+                                       placeholder="e.g., Learn more">
+                                @error($locale . '.btn_text')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                            <div class="flex w-fulls items-center justify-center flex-col mb-2">
+                            <div class="flex w-full items-start justify-center flex-col mb-2">
+                                <label for="btn_url_{{ $locale }}" class="text-sm font-medium text-gray-700">Redirect Link ( {{ __('admin.locale_' . $locale) }} )</label>
+                                <input type="text" name="{{ $locale }}[btn_url]" id="btn_url_{{ $locale }}"
+                                       class="mt-1 border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error($locale . '.btn_url') border-red-500 ring-1 ring-red-200 @enderror"
+                                       placeholder="https://example.com/path">
+                                @error($locale . '.btn_url')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+
+
+                            <div class="flex w-full items-start justify-center flex-col mb-4">
 
                                 <label for="slug_{{ $locale }}" class="text-sm font-medium"><span
-
                                         class="text-red-500">*</span>URL Keyword
 
-                                    ( {{ __('admin.locale_' . $locale) }})</label>
+                                    ({{ __('admin.locale_' . $locale) }})
+                                </label>
 
-                                <input type="text" name="{{ $locale }}[slug]"
-
-                                    id="slug_{{ $locale }}"
-
-                                    class="border w-full text-sm rounded-lg block  p-2.5 @error('slug_' . $locale) border-red-500 @enderror"
-
+                                <input type="text" name="{{ $locale }}[slug]" id="slug_{{ $locale }}"
+                                    class="mt-1 border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error('slug_' . $locale) border-red-500 ring-1 ring-red-200 @enderror"
                                     placeholder="URL Keyword">
 
                                 @error('slug_' . $locale)
-
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
-
                                 @enderror
 
                             </div>
 
-                         
 
-                            <div class="flex w-full items-center justify-center flex-col mb-2">
+
+                            <div class="flex w-full items-start justify-center flex-col mb-2">
 
                                 <label for="description_{{ $locale }}"
-
                                     class="text-sm font-medium text-gray-900 dark:text-gray-400"><span
-
                                         class="text-red-500">*</span>Description
 
                                     ( {{ __('admin.locale_' . $locale) }})</label>
 
-                                <textarea id="description_{{ $locale }}" name="{{ $locale }}[desc]" rows="4"
+                                <textarea id="description_{{ $locale }}" name="{{ $locale }}[desc]" rows="4" class="w-full border rounded-lg p-4 mt-2 bg-white focus:ring-indigo-500 focus:border-indigo-500 @error('description_' . $locale) border-red ring-1 ring-red-200 @enderror"
 
-                                    class="border w-full text-sm text-gray-900 rounded-lg border-gray-300 focus:ring-blue-500
-
-                                     focus:border-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black
-
-                                      dark:focus:ring-blue-500 dark:focus:border-blue-500 p-2.5 
-
-                                     @error('description_' . $locale) border-red @enderror"
-
-                                    placeholder="Description"></textarea>
+                                 placeholder="Description"></textarea>
 
                                 @error('description_' . $locale)
-
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
-
                                 @enderror
 
                             </div>
 
                         </div>
-
                     @endforeach
 
                 </div>
 
-                <div class="flex flex-col w-full items-center justify-center mb-2">
+                <div class="flex flex-col w-full items-center justify-center mb-2 mt-4">
 
                     <label for="title_{{ $locale }}" class="text-sm font-medium"><span
-
                             class="text-red-500">*</span>{{ __('admin.type') }}</label>
 
-                            <select class="border w-full text-sm rounded-lg block  p-2.5 @error('type') danger @enderror " name="type_id" id="typeselect">
+                            <select class="mt-1 border w-full text-sm rounded-lg block p-2.5 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 @error('type') danger @enderror" name="type_id" id="typeselect">
 
-                                @foreach ($bannerTypes as $key => $type)
+                        @foreach ($bannerTypes as $key => $type)
+                            <option value="{{ $type['id'] }}" id="typeoption">{{ __('bannerTypes.' . $key) }}</option>
+                        @endforeach
 
-                                <option value="{{ $type['id'] }}" id="typeoption">{{ __('bannerTypes.'.$key) }}</option>
-
-                                @endforeach
-
-                            </select>
+                    </select>
 
                 </div>
 
-                
+
 
                 <!-- sort -->
 
-    
+
 
                 <!-- active -->
 
-                <div class="flex flex-col mb-2">
+                <div class="flex flex-col mb-4 mt-4">
 
-                    <label class="text-xl mr-2 mb-2 text-cyan-400 font-bold"> Active </label>
+                    <label class="text-sm mr-2 mb-2 text-gray-700 font-medium">Active</label>
 
-                   
+
 
                     <label class="relative inline-flex cursor-pointer items-center">
 
@@ -192,53 +203,61 @@
 
                         <label for="switch" class="hidden"></label>
 
-                        <div class="peer h-6 w-12 rounded-full border bg-slate-200 
+                        <div
+                            class="peer h-6 w-12 rounded-full border bg-gray-300 
 
                         after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 
 
-                        after:rounded-full after:border after:border-gray-300 after:bg-cyan-500
+                        after:rounded-full after:border after:border-gray-300 after:bg-white
 
                         after:transition-all after:content-['']
 
-                         peer-checked:bg-slate-800 peer-checked:after:translate-x-full
+                         peer-checked:bg-indigo-500 peer-checked:after:translate-x-full
 
-                          peer-checked:after:border-white peer-focus:ring-green-300">
+                          peer-checked:after:border-white peer-focus:ring-indigo-300">
 
                         </div>
 
-                      </label>
+                    </label>
 
                 </div>
-
-    
-
                 <!-- Banner Images -->
                 <div class="mb-4">
-                    <label for="images" class="block font-medium text-gray-700">Banner Images</label>
-                    <input type="file" name="images[]" id="images" multiple accept="image/*" class="border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2">
-                    <p class="text-sm text-gray-500 mt-1">You can select multiple images for the banner</p>
-                    @error('images.*')
+                    <label for="image" class="block font-medium text-gray-700">Banner Image</label>
+                    <input type="file" name="thumb" id="image" accept="image/*" class="border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2">
+                    <p class="text-sm text-gray-500 mt-1">You can select banner image</p>
+                    @error('thumb')
                         <span class="text-red-500 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
 
-                <div class="flex justify-between">
+                <div class="flex justify-between items-center pt-4 border-t border-gray-100">
 
                     <div class="mb-4">
 
-                        <button type="submit" class="bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600">Create Banner</button>
+                        <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                            Create Banner
+                        </button>
 
                     </div>
 
                     <div>
 
-                        <a href="/{{app()->getlocale()}}/admin/banners" class="bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600">Back</a>
+                        <a href="{{ route('banners.index', app()->getlocale()) }}" class="inline-flex items-center gap-2 bg-white text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 border border-gray-200 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4A1 1 0 018.707 6.707L6.414 9H17a1 1 0 110 2H6.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                            </svg>
+                            Back
+                        </a>
 
                     </div>
 
                 </div>
 
-               <input type="hidden" name="author_id" value="{{ auth()->user()->id }}">
+                <input type="hidden" name="author_id" value="{{ auth()->user()->id }}">
 
             </form>
 
@@ -248,32 +267,29 @@
 
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
 
-        <script>
+    <script>
+        $(document).ready(function() {
 
-            $(document).ready(function() {
+            @foreach (config('app.locales') as $locale)
 
-                @foreach (config('app.locales') as $locale)
+                ClassicEditor
 
-                    ClassicEditor
+                    .create(document.querySelector('#description_{{ $locale }}'))
 
-                        .create( document.querySelector( '#description_{{ $locale }}' ) )
+                    .then(editor => {
 
-                        .then( editor => {
+                        console.log(editor);
 
-                            console.log( editor );
+                    })
 
-                        } )
+                    .catch(error => {
 
-                        .catch( error => {
+                        console.error(error);
 
-                            console.error( error );
+                    });
+            @endforeach
 
-                        } );
+        });
+    </script>
 
-                @endforeach
-
-            });
-
-        </script>
-
-</x-admin.admin-layout> 
+</x-admin.admin-layout>

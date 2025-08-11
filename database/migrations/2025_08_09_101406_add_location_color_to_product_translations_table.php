@@ -11,10 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('product_translations', function (Blueprint $table) {
-            $table->string('location')->nullable()->after('brand');
-            $table->string('color')->nullable()->after('location');
-        });
+        if (Schema::hasTable('product_translations')) {
+            // Add columns only if they don't already exist
+            Schema::table('product_translations', function (Blueprint $table) {
+                if (!Schema::hasColumn('product_translations', 'location')) {
+                    $table->string('location')->nullable();
+                }
+                if (!Schema::hasColumn('product_translations', 'color')) {
+                    $table->string('color')->nullable();
+                }
+            });
+        }
     }
 
     /**
@@ -22,8 +29,19 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('product_translations', function (Blueprint $table) {
-            $table->dropColumn(['location', 'color']);
-        });
+        if (Schema::hasTable('product_translations')) {
+            Schema::table('product_translations', function (Blueprint $table) {
+                $columnsToDrop = [];
+                if (Schema::hasColumn('product_translations', 'location')) {
+                    $columnsToDrop[] = 'location';
+                }
+                if (Schema::hasColumn('product_translations', 'color')) {
+                    $columnsToDrop[] = 'color';
+                }
+                if (!empty($columnsToDrop)) {
+                    $table->dropColumn($columnsToDrop);
+                }
+            });
+        }
     }
 };

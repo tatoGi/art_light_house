@@ -43,6 +43,7 @@ class PageController extends Controller
      */
     public function store(StorePageRequest $request)
     {
+        
         $data = $request->all();
     
         foreach (config('app.locales') as $locale) {

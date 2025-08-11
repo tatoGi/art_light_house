@@ -21,6 +21,8 @@ class Banner extends Model
         'title',
         'slug',
         'desc',
+        'btn_text',
+        'btn_url',
     ];
 
     public function images()

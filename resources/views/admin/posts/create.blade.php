@@ -106,8 +106,8 @@
                                     data-locale="{{ $locale }}"
                                     onclick="switchLanguageTab('{{ $locale }}')">
                                 {{ __('admin.locale_' . $locale) }}
-                                <img src="{{ $locale === 'en' ? asset('storage/flags/united-states.png') : asset('storage/flags/georgia.png') }}" 
-                                     alt="{{ $locale }}" class="inline w-4 h-4 ml-1">
+                               
+                               
                             </button>
                         @endforeach
                     </nav>
