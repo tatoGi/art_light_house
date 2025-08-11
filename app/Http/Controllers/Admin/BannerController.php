@@ -36,11 +36,27 @@ class BannerController extends Controller
     }
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
+            'thumb' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-        ]);
+        ];
+
+        foreach (config('app.locales') as $locale) {
+            $rules["{$locale}.btn_text"] = 'nullable|string|max:255';
+            $rules["{$locale}.btn_url"] = 'nullable|url|max:2048';
+        }
+
+        $request->validate($rules);
 
         $data = $request->except(['images']);
+
+        // Handle primary thumbnail upload
+        if ($request->hasFile('thumb')) {
+            $thumb = $request->file('thumb');
+            $imageName = time() . '_' . $thumb->getClientOriginalName();
+            $path = $thumb->storeAs('banners', $imageName, 'public');
+            $data['thumb'] = $path;
+        }
 
         // Create the banner
         $banner = Banner::create($data);
@@ -99,14 +115,30 @@ class BannerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $rules = [
+            'thumb' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-        ]);
+        ];
+
+        foreach (config('app.locales') as $locale) {
+            $rules["{$locale}.btn_text"] = 'nullable|string|max:255';
+            $rules["{$locale}.btn_url"] = 'nullable|url|max:2048';
+        }
+
+        $request->validate($rules);
 
         $banner = Banner::findOrFail($id);
         
         // Update banner data
         $updateData = $request->except(['images']);
+
+        // Handle primary thumbnail upload
+        if ($request->hasFile('thumb')) {
+            $thumb = $request->file('thumb');
+            $imageName = time() . '_' . $thumb->getClientOriginalName();
+            $path = $thumb->storeAs('banners', $imageName, 'public');
+            $updateData['thumb'] = $path;
+        }
         $banner->update($updateData);
 
         // Handle additional images

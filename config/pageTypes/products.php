@@ -3,8 +3,8 @@
 return [
     'id' => 2,
     'type' => 2,
-    'name' => 'Blog Page',
-    'slug' => 'blog',
+    'name' => 'Products Page',
+    'slug' => 'products',
     'has_posts' => true,
     'post_attributes' => [
         'translatable' => [
@@ -73,6 +73,18 @@ return [
                     'published' => 'Published',
                     'archived' => 'Archived'
                 ]
+            ],
+            'on_sale' => [
+                'type' => 'checkbox',
+                'required' => false,
+                'label' => 'On Sale'
+            ],
+            'sale_price' => [
+                'type' => 'text',
+                'required' => false,
+                'label' => 'Sale Price',
+                'placeholder' => '0.00',
+                'help' => 'Fill this when On Sale is checked'
             ]
         ]
     ]

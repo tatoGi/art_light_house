@@ -24,25 +24,19 @@ class ProductRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            // Base attributes
-            'product_identify_id' => 'nullable|string|unique:products,product_identify_id,' . $this->route('product'),
+            // Keep only the necessary fields; others can be null/not provided
             'category_id' => 'nullable|exists:categories,id',
-            'size' => 'nullable|string|max:100',
             'price' => 'required|numeric|min:0',
             'sort_order' => 'nullable|integer|min:0',
             'active' => 'nullable|boolean',
             'images' => 'nullable|array',
-            'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:4096',
         ];
-    
-        // Validation rules for translatable attributes
+
+        // Translatable attributes: only title (required) and description (optional)
         foreach (config('app.locales') as $locale) {
-            $rules["{$locale}.title"] = 'required|max:255';
-            $rules["{$locale}.slug"] = 'required|max:255';
-            $rules["{$locale}.description"] = 'nullable|string|max:2000';
-            $rules["{$locale}.brand"] = 'nullable|string|max:255';
-            $rules["{$locale}.location"] = 'nullable|string|max:255';
-            $rules["{$locale}.color"] = 'nullable|string|max:100';
+            $rules["{$locale}.title"] = 'required|string|max:255';
+            $rules["{$locale}.description"] = 'nullable|string|max:5000';
         }
     
         return $rules;

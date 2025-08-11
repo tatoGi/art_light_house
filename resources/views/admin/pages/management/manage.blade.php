@@ -136,8 +136,17 @@
                                                        class="text-blue-600 hover:text-blue-900 transition-colors">
                                                         <i class="material-icons text-sm">edit</i>
                                                     </a>
+                                                    <form action="{{ route('products.destroy', [app()->getLocale(), $product->id]) }}" method="POST" alert="Are you sure you want to delete this product?">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:text-red-900 transition-colors">
+                                                            <i class="material-icons text-sm">delete</i>
+                                                        </button>
+                                                    </form>
                                                 </div>
+                                              
                                             </td>
+                                           
                                         </tr>
                                         @endforeach
                                     </tbody>

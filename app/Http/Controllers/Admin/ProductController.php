@@ -53,18 +53,25 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
-        // Validate the request data
-        $data = $request->validated();
+        $validated = $request->validated();
 
-        // Handle active status
-        $data['active'] = $request->has('active') ? 1 : 0;
+        // Build minimal payload: price + translations only; others null
+        $data = [
+            'price' => $validated['price'],
+            'active' => $request->boolean('active', true) ? 1 : 0,
+            'product_identify_id' => null,
+            'category_id' => $validated['category_id'] ?? null,
+            'size' => null,
+            'sort_order' => $validated['sort_order'] ?? 0,
+        ];
 
-        // Generate unique product identify ID if not provided
-        if (empty($data['product_identify_id'])) {
-            $data['product_identify_id'] = 'PROD-' . strtoupper(Str::random(8));
+        foreach (config('app.locales') as $locale) {
+            $data[$locale] = [
+                'title' => $validated[$locale]['title'] ?? null,
+                'description' => $validated[$locale]['description'] ?? null,
+            ];
         }
 
-        // Create the product
         $product = Product::create($data);
 
         // Handle product images
@@ -85,14 +92,11 @@ class ProductController extends Controller
 
             foreach (config('app.locales') as $locale) {
                 $seo = $product->translate($locale)->seo;
-                $seoData = [
-                    'title' => $data[$locale]['title'],
-                    'description' => $data[$locale]['description'],
+                $seo->update([
+                    'title' => $data[$locale]['title'] ?? null,
+                    'description' => $data[$locale]['description'] ?? null,
                     'image' => $firstImage,
-                    'author' => $data[$locale]['author'] ?? null,
-                    'robots' => $data[$locale]['robots'] ?? null,
-                ];
-                $seo->update($seoData);
+                ]);
             }
         }
 
@@ -143,44 +147,31 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, $id)
     {
-        // Validate the request data
-        $data = $request->validated();
         $product = Product::findOrFail($id);
+        $validated = $request->validated();
 
-        // Handle active status
-        $data['active'] = $request->has('active') ? 1 : 0;
-
-        // Format slugs to ensure they're URL-friendly
-        foreach (config('app.locales') as $locale) {
-            if (!empty($data[$locale]['slug'])) {
-                $data[$locale]['slug'] = str_replace(' ', '-', $data[$locale]['slug']);
-            }
-        }
-
-        // Update the base product attributes
+        // Update minimal base attributes
         $product->update([
-            'category_id' => $data['category_id'] ?? null,
-            'price' => $data['price'],
-            'active' => $data['active']
+            'price' => $validated['price'],
+            'active' => $request->boolean('active', true) ? 1 : 0,
+            'product_identify_id' => null,
+            'category_id' => $validated['category_id'] ?? null,
+            'size' => null,
+            'sort_order' => $validated['sort_order'] ?? 0,
         ]);
 
-        // Update translations for each locale
+        // Update translations: title and description only
         foreach (config('app.locales') as $locale) {
-            if (isset($data[$locale])) {
-                $translation = $product->translateOrNew($locale);
-                $translation->title = $data[$locale]['title'] ?? '';
-                $translation->slug = $data[$locale]['slug'] ?? '';
-                $translation->description = $data[$locale]['description'] ?? '';
-                $translation->location = $data[$locale]['location'] ?? null;
-                $translation->color = $data[$locale]['color'] ?? null;
-                $translation->save();
-            }
+            $translation = $product->translateOrNew($locale);
+            $translation->title = $validated[$locale]['title'] ?? '';
+            $translation->description = $validated[$locale]['description'] ?? '';
+            $translation->save();
         }
 
         // Handle product images
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $key => $image) {
-                $imageName = time() . '_' . $image->getClientOriginalName();
+            foreach ($request->file('images') as $image) {
+                $imageName = $image->getClientOriginalName();
                 $path = $image->storeAs('products', $imageName, 'public');
                 $productImage = new ProductImage;
                 $productImage->image_name = 'products/' . $imageName;
@@ -350,18 +341,25 @@ class ProductController extends Controller
      */
     public function storeForPage(ProductRequest $request, Page $page): RedirectResponse
     {
-        // Validate the request data
-        $data = $request->validated();
+        $validated = $request->validated();
 
-        // Handle active status
-        $data['active'] = $request->has('active') ? 1 : 0;
+        // Build minimal payload and ensure product_identify_id is null if not provided
+        $data = [
+            'price' => $validated['price'],
+            'active' => $request->boolean('active', true) ? 1 : 0,
+            'product_identify_id' => null,
+            'category_id' => $validated['category_id'] ?? null,
+            'size' => null,
+            'sort_order' => $validated['sort_order'] ?? 0,
+        ];
 
-        // Generate unique product identify ID if not provided
-        if (empty($data['product_identify_id'])) {
-            $data['product_identify_id'] = 'PROD-' . strtoupper(Str::random(8));
+        foreach (config('app.locales') as $locale) {
+            $data[$locale] = [
+                'title' => $validated[$locale]['title'] ?? null,
+                'description' => $validated[$locale]['description'] ?? null,
+            ];
         }
 
-        // Create the product
         $product = Product::create($data);
 
         // Attach the product to the page with sort order

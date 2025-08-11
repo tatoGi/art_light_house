@@ -3,9 +3,9 @@
 return [
     'id' => 4,
     'type' => 4,
-    'folder' => 'sale',
-    'name' => 'FAQ Page',
-    'slug' => 'faq',
+    'folder' => 'projects',
+    'name' => 'Projects Page',
+    'slug' => 'projects',
     'has_posts' => true,
     'post_attributes' => [
         'translatable' => [

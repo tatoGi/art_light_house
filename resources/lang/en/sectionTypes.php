@@ -2,8 +2,8 @@
 
 return [
     'home' => 'Home Page',
-    'faq' => 'FAQ Page',
-    'blog' =>'Blog Page',
+    'products' => 'Products Page',
+    'projects' =>'Projects Page',
     'contact' =>'Contact Page',
-    'routes' => 'Routes Page'
+    'sale' => ' Sales Page'
 ];
