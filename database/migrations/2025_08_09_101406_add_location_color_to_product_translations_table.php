@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('product_translations')) {
-            // Add columns only if they don't already exist
             Schema::table('product_translations', function (Blueprint $table) {
                 if (!Schema::hasColumn('product_translations', 'location')) {
                     $table->string('location')->nullable();
