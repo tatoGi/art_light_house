@@ -12,11 +12,15 @@ class PageTypeService
     public static function getAllPageTypes()
     {
         $pageTypes = [];
-        // Use correct case-sensitive directory name as in config/pageTypes/
-        $configPath = config_path('pageTypes');
+        $configPath = config_path('pagetypes');
         
         if (!File::exists($configPath)) {
-            return $pageTypes;
+            $altPath = config_path('pageTypes');
+            if (File::exists($altPath)) {
+                $configPath = $altPath;
+            } else {
+                return $pageTypes;
+            }
         }
         
         $files = File::files($configPath);
@@ -38,9 +42,26 @@ class PageTypeService
      */
     public static function getPageTypeConfig($typeId)
     {
-        // Resolve dynamically from scanned configs to avoid filename coupling
-        $all = self::getAllPageTypes();
-        return $all[$typeId] ?? null;
+        $configFiles = [
+            1 => 'home',
+            2 => 'blog', 
+            3 => 'contact',
+            4 => 'faq',
+            5 => 'routes'
+        ];
+        
+        $configFile = $configFiles[$typeId] ?? null;
+        if (!$configFile) {
+            return null;
+        }
+        
+        // Load config file directly from the pagetypes directory
+        $configPath = config_path("pagetypes/{$configFile}.php");
+        if (file_exists($configPath)) {
+            return include $configPath;
+        }
+        
+        return null;
     }
     
     /**
