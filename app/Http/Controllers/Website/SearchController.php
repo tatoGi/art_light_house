@@ -6,6 +6,8 @@ use App\Models\Product;
 use App\Models\ProductTranslation;
 use App\Models\Category;
 use App\Models\CategoryTranslation;
+use App\Models\Post;
+use App\Models\PostAttribute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
@@ -79,9 +81,33 @@ class SearchController extends Controller
                 'desc' => Str::limit(strip_tags($translation->description)),
             ];
         });
+
+        // Search in PostAttributes for this locale (translatable content)
+        $postIds = PostAttribute::where('locale', $locale)
+            ->where('attribute_value', 'LIKE', "%{$searchText}%")
+            ->pluck('post_id')
+            ->unique()
+            ->toArray();
+
+        // Fetch Posts and prepare data
+        $posts = Post::whereIn('id', $postIds)
+            ->active()
+            ->published()
+            ->ordered()
+            ->get();
+
+        $postData = $posts->map(function($post) use ($locale) {
+            return [
+                'slug' => $post->getAttributeForLocale('slug', $locale) ?? '#',
+                'title' => $post->getAttributeForLocale('title', $locale),
+                'desc' => Str::limit(strip_tags($post->getAttributeForLocale('description', $locale) ?? '')),
+            ];
+        });
+
         return response()->json([
             'products' => $productData,
             'categories' => $categoryData,
+            'posts' => $postData,
         ]);
     }
 }
