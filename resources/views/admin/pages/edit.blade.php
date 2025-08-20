@@ -111,6 +111,14 @@
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
+
+                            {{-- @include('admin.components.seo-tools', [
+                                'locale' => $locale,
+                                'titleFieldId' => "title_{$locale}",
+                                'descFieldId' => "description_{$locale}",
+                                'keywordsFieldId' => "keywords_{$locale}",
+                                'topic' => 'Page'
+                            ]) --}}
                             <div class="flex flex-col mb-2 mt-4">
                                 <label class="text-xl mr-2 mb-2 text-cyan-400 font-bold"> Active </label>
                                 <!-- Hidden input to ensure active field is always submitted -->
@@ -148,16 +156,6 @@
                         @endforeach
                     </select>
                 </div>
-
-                <!-- images -->
-                {{-- <div class="mb-4">
-                <label for="icon" class="block font-medium text-gray-700">Icon</label>
-                <input type="file" name="icon" id="icon" multiple class="border-gray-300 py-2 
-                focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2">
-                @error('images')
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-                @enderror
-            </div> --}}
                 <div class="flex justify-between items-center pt-4 border-t border-gray-100">
                     <div class="mb-4">
                         <button type="submit"
@@ -192,25 +190,18 @@
     <script>
         $(document).ready(function() {
 
-            @foreach (config('app.locales') as $locale)
-
+            if (window.ClassicEditor) {
+                @foreach (config('app.locales') as $locale)
                 ClassicEditor
-
                     .create(document.querySelector('#description_{{ $locale }}'))
-
                     .then(editor => {
-
                         console.log(editor);
-
                     })
-
                     .catch(error => {
-
                         console.error(error);
-
                     });
-            @endforeach
-
+                @endforeach
+            }
         });
     </script>
 </x-admin.admin-layout>

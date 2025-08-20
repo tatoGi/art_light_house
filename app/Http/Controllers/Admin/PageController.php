@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Page;
-use RalphJSmit\Laravel\SEO\Facades\SEO;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use App\Http\Requests\StorePageRequest;
+use App\AiAgents\SeoAgent;
 
 class PageController extends Controller
 {
@@ -141,4 +141,5 @@ class PageController extends Controller
 
         return ['error' => false];
     }
+
 }

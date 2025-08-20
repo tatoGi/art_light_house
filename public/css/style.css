@@ -1355,3 +1355,6 @@ overflow-y: auto;
 .remove-image{
   background-color: red !important;
 }
+.seo-analyze-btn{
+  background-color: #000;
+}

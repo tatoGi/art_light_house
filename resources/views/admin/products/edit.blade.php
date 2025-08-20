@@ -78,6 +78,29 @@
                             </div>
                         </div>
 
+                        <!-- On Sale Toggle -->
+                        <div class="mb-4">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="on_sale" id="on_sale" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" {{ old('on_sale', $product->on_sale ?? 0) ? 'checked' : '' }}>
+                                <span class="ml-2 text-sm text-gray-700">On Sale</span>
+                            </label>
+                        </div>
+
+                        <!-- Sale Price (shown when On Sale) -->
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4" id="sale_price_group" style="{{ old('on_sale', $product->on_sale ?? 0) ? '' : 'display:none;' }}">
+                            <div>
+                                <label for="sale_price" class="block font-medium text-gray-700">
+                                    Sale Price
+                                </label>
+                                <input type="text" name="sale_price" id="sale_price"
+                                    class="border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error('sale_price') border-red-500 @enderror"
+                                    value="{{ old('sale_price', $product->sale_price ?? '') }}" placeholder="e.g., 79.99">
+                                @error('sale_price')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div>
                             <label for="active" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                             <select name="active" id="active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
@@ -126,7 +149,21 @@
                                             <span class="text-red-500 text-sm">{{ $message }}</span>
                                         @enderror
                                     </div>
-
+                                    <div>
+                                        <label for="{{ $locale }}_slug" class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('admin.Slug') }} ({{ __('admin.locale_' . $locale) }})
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               name="{{ $locale }}[slug]" 
+                                               id="{{ $locale }}_slug"
+                                               value="{{ old($locale . '.slug', $product->translate($locale)->slug ?? '') }}"
+                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error($locale . '.slug') border-red-500 @enderror"
+                                               placeholder="{{ __('admin.Slug') }}">
+                                        @error($locale . '.slug')
+                                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                     <!-- Description -->
                                     <div>
                                         <label for="{{ $locale }}_description" class="block text-sm font-medium text-gray-700 mb-2">
@@ -306,9 +343,19 @@
 
                     console.error(error);
 
-                });
+            });
             @endforeach
 
+            // Toggle sale price visibility
+            function toggleSalePrice() {
+                if ($('#on_sale').is(':checked')) {
+                    $('#sale_price_group').show();
+                } else {
+                    $('#sale_price_group').hide();
+                }
+            }
+            $('#on_sale').on('change', toggleSalePrice);
+            toggleSalePrice();
         });
 
     </script>

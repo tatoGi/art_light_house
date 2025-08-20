@@ -16,3 +16,6 @@ Route::delete('/pages/{page}/banners/{banner}/detach', [PageManagementController
 Route::post('/pages/{page}/products/attach', [PageManagementController::class, 'attachProduct'])->name('admin.pages.products.attach');
 Route::delete('/pages/{page}/products/{product}/detach', [PageManagementController::class, 'detachProduct'])->name('admin.pages.products.detach');
 
+// SEO Analysis Route
+Route::post('/pages/seo/analyze', [PageController::class, 'analyzeContent'])->name('admin.pages.seo.analyze');
+

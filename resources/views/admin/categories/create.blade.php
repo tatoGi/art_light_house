@@ -19,7 +19,6 @@
                                             @endif
                                                 <a href="#locale-{{ $locale }}" class="language-selector-link">
                                                     <!-- You can use small icons here for each language -->
-                                                    <img src="{{ $locale === 'en' ? asset('storage/flags/united-states.png') : asset('storage/flags/georgia.png') }}" alt="{{ $locale }}" class="language-icon">
                                                     <span class="language-name">{{ __('admin.locale_' . $locale) }}</span>
                                                 </a>
                                             </li>

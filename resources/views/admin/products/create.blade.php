@@ -110,8 +110,24 @@
                                             <span class="text-red-500 text-sm">{{ $message }}</span>
                                         @enderror
 
-                                    </div>
 
+                                    </div>
+   <div class="flex flex-col w-full items-center justify-center mb-2">
+
+                                        <label for="slug_{{ $locale }}" class="text-sm font-medium"><span
+                                                class="text-red-500">*</span>SLUG (
+                                            {{ __('admin.locale_' . $locale) }})</label>
+
+                                        <input type="text" name="{{ $locale }}[slug]"
+                                            id="slug_{{ $locale }}"
+                                            class="border w-full text-sm rounded-lg block p-2.5 @error('slug') border-red-500 @enderror"
+                                            placeholder="Slug">
+
+                                        @error('slug')
+                                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                                        @enderror
+
+                                    </div>
 
 
                                     <div class="flex w-full items-center justify-center flex-col mb-2">
@@ -148,6 +164,29 @@
                                     class="border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error('price') border-red-500 @enderror"
                                     value="{{ old('price') }}" placeholder="e.g., 99.99">
                                 @error('price')
+                                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- On Sale Toggle -->
+                        <div class="mb-4">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="on_sale" id="on_sale" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" {{ old('on_sale') ? 'checked' : '' }}>
+                                <span class="ml-2 text-sm text-gray-700">On Sale</span>
+                            </label>
+                        </div>
+
+                        <!-- Sale Price (shown when On Sale) -->
+                        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4" id="sale_price_group" style="{{ old('on_sale') ? '' : 'display:none;' }}">
+                            <div>
+                                <label for="sale_price" class="block font-medium text-gray-700">
+                                    Sale Price
+                                </label>
+                                <input type="text" name="sale_price" id="sale_price"
+                                    class="border-gray-300 py-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2 @error('sale_price') border-red-500 @enderror"
+                                    value="{{ old('sale_price') }}" placeholder="e.g., 79.99">
+                                @error('sale_price')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -252,6 +291,16 @@
                     });
             @endforeach
 
+            // Toggle sale price visibility
+            function toggleSalePrice() {
+                if ($('#on_sale').is(':checked')) {
+                    $('#sale_price_group').show();
+                } else {
+                    $('#sale_price_group').hide();
+                }
+            }
+            $('#on_sale').on('change', toggleSalePrice);
+            toggleSalePrice();
         });
     </script>
 

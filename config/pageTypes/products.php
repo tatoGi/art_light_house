@@ -5,7 +5,7 @@ return [
     'type' => 2,
     'name' => 'Products Page',
     'slug' => 'products',
-    'has_posts' => true,
+    'has_posts' => false,
     'post_attributes' => [
         'translatable' => [
             'title' => [

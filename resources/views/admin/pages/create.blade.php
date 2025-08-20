@@ -27,27 +27,14 @@
                         <ul id="tabs" class="language-selector-list flex items-center gap-2 border-b border-gray-200">
 
                             @foreach (config('app.locales') as $locale)
-
-                            @if($locale === 'en')
-
-                            <li class="language-selector-item border-cyan-500">
-
-                                @elseif($locale === 'ka')
-
-                            <li class="language-selector-item border-red-600">
-
-                            @endif
-
-                                <a href="#locale-{{ $locale }}" class="language-selector-link inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-t-lg">
-
-                                   
-
-                                    <span class="language-name">{{ __('admin.locale_' . $locale) }}</span>
-
-                                </a>
-
-                            </li>
-
+                                @php
+                                    $borderClass = $locale === 'en' ? 'border-cyan-500' : ($locale === 'ka' ? 'border-red-600' : 'border-gray-300');
+                                @endphp
+                                <li class="language-selector-item {{ $borderClass }}">
+                                    <a href="#locale-{{ $locale }}" class="language-selector-link inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-t-lg">
+                                        <span class="language-name">{{ __('admin.locale_' . $locale) }}</span>
+                                    </a>
+                                </li>
                             @endforeach
 
                         </ul>
@@ -109,7 +96,30 @@
 
                         </div>
 
+                        <div class="flex w-full items-start justify-center flex-col mb-2 mt-4">
 
+                            <label for="description_{{ $locale }}" class="text-sm font-medium text-gray-700"><span
+                                    class="text-red-500">*</span>
+                                Description
+                                ( {{ __('admin.locale_' . $locale) }})</label>
+
+                            <textarea id="description_{{ $locale }}" name="{{ $locale }}[description]" class="w-full border rounded-lg p-4 mt-2 bg-white focus:ring-indigo-500 focus:border-indigo-500 @error('description_' . $locale) border-red ring-1 ring-red-200 @enderror" placeholder="Description">{{ old($locale.'.description') }}</textarea>
+
+                            @error('description_' . $locale)
+
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+
+                            @enderror
+
+                        </div>
+
+                        {{-- @include('admin.components.seo-tools', [
+                            'locale' => $locale,
+                            'titleFieldId' => "title_{$locale}",
+                            'descFieldId' => "description_{$locale}",
+                            'keywordsFieldId' => "keywords_{$locale}",
+                            'topic' => 'Page'
+                        ]) --}}
 
                         <div class="flex w-full items-start justify-center flex-col mb-4">
 
@@ -130,52 +140,12 @@
 
                         </div>
 
-                        <div class="mb-4">
-
-                            <label for="keywords" class="block text-sm font-medium text-gray-700">Keywords (
-                                {{ __('admin.locale_' . $locale) }})</label>
-
-                            <input type="text" id="keywords_{{ $locale }}" name="{{ $locale }}[keywords]"
-                                class="mt-1 border-gray-300 py-2 
-                              focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2">
-
-                            <p class="text-sm text-gray-500">Enter keywords separated by commas (e.g., keyword1,
-                                keyword2, keyword3)</p>
-
-                            @error('keywords')
-
-                            <span class="text-red-500 text-sm">{{ $message }}</span>
-
-                            @enderror
-
-                        </div>
-
-                        <div class="flex w-full items-start justify-center flex-col mb-2">
-
-                            <label for="description_{{ $locale }}" class="text-sm font-medium text-gray-700"><span
-                                    class="text-red-500">*</span> Description
-
-                                ( {{ __('admin.locale_' . $locale) }})</label>
-
-                            <textarea id="description_{{ $locale }}" name="{{ $locale }}[desc]"
-                                class="w-full border rounded-lg p-4 mt-2 bg-white focus:ring-indigo-500 focus:border-indigo-500 @error($locale . '.desc') border-red ring-1 ring-red-200 @enderror"
-                                placeholder="Description"></textarea>
-
-                            @error($locale . '.desc')
-
-                            <span class="text-red-500 text-sm">{{ $message }}</span>
-
-                            @enderror
-
-                        </div>
 
                     </div>
 
                     @endforeach
 
                 </div>
-
-
 
                 <!-- sort -->
 
@@ -205,8 +175,6 @@
 
                     <label class="text-sm mr-2 mb-2 text-gray-700 font-medium">Active</label>
 
-
-
                     <label class="relative inline-flex cursor-pointer items-center">
 
                         <input id="switch" type="checkbox" class="peer sr-only" value="1" checked />
@@ -230,26 +198,6 @@
                     </label>
 
                 </div>
-
-
-
-                <!-- images -->
-
-                {{-- <div class="mb-4">
-
-                <label for="icon" class="block font-medium text-gray-700">Icon</label>
-
-                <input type="file" name="icon" id="icon" multiple class="border-gray-300 py-2 
-
-                focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-md shadow-sm p-2">
-
-                @error('images')
-
-                    <span class="text-red-500 text-sm">{{ $message }}</span>
-
-                @enderror
-
-        </div> --}}
 
         <div class="flex justify-between items-center pt-4 border-t border-gray-100">
 
@@ -278,8 +226,6 @@
 
         </div>
 
-
-
         </form>
 
     </div>
@@ -291,28 +237,20 @@
     <script>
         $(document).ready(function () {
 
-            @foreach(config('app.locales') as $locale)
-
-            ClassicEditor
-
-                .create(document.querySelector('#description_{{ $locale }}'))
-
-                .then(editor => {
-
-                    console.log(editor);
-
-                })
-
-                .catch(error => {
-
-                    console.error(error);
-
-                });
-
-            @endforeach
-
+            if (window.ClassicEditor) {
+                @foreach(config('app.locales') as $locale)
+                ClassicEditor
+                    .create(document.querySelector('#description_{{ $locale }}'))
+                    .then(editor => {
+                        console.log(editor);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+                @endforeach
+            
+            }
         });
-
     </script>
 
 </x-admin.admin-layout>

@@ -58,6 +58,8 @@ class ProductController extends Controller
         // Build minimal payload: price + translations only; others null
         $data = [
             'price' => $validated['price'],
+            'on_sale' => $request->boolean('on_sale') ? 1 : 0,
+            'sale_price' => $validated['sale_price'] ?? null,
             'active' => $request->boolean('active', true) ? 1 : 0,
             'product_identify_id' => null,
             'category_id' => $validated['category_id'] ?? null,
@@ -153,6 +155,8 @@ class ProductController extends Controller
         // Update minimal base attributes
         $product->update([
             'price' => $validated['price'],
+            'on_sale' => $request->boolean('on_sale') ? 1 : 0,
+            'sale_price' => $validated['sale_price'] ?? null,
             'active' => $request->boolean('active', true) ? 1 : 0,
             'product_identify_id' => null,
             'category_id' => $validated['category_id'] ?? null,

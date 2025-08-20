@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\WebUserController;
+use App\Http\Controllers\Admin\SeoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -27,6 +28,12 @@ Route::delete('/banners/delete/image/{image_id}', [BannerController::class, 'del
 // Image upload route for TinyMCE editor
 Route::post('/upload-image', [PostController::class, 'uploadImage'])->name('admin.upload.image');
 
+// Global SEO analysis endpoint (usable by any CRUD)
+Route::post('/seo/analyze', [SeoController::class, 'analyze'])->name('admin.seo.analyze');
+// SEO writer and keyword endpoints
+Route::post('/seo/write', [SeoController::class, 'write'])->name('admin.seo.write');
+Route::post('/seo/keywords', [SeoController::class, 'keywords'])->name('admin.seo.keywords');
+
 // Post management routes (nested under pages)
 Route::prefix('pages/{page}')->name('admin.pages.')->group(function () {
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
@@ -36,3 +43,4 @@ Route::prefix('pages/{page}')->name('admin.pages.')->group(function () {
     Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 });
+

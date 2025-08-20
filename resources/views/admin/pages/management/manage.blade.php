@@ -41,7 +41,7 @@
                     @endif --}}
                     
                     {{-- Page Products Section --}}
-                    @if($page->type_id == 1 )
+                    @if($page->type_id == 1 || $page->type_id == 2 )
                     <div class="bg-white rounded-lg shadow-sm p-6">
                         <div class="flex justify-between items-center mb-4">
                             <div>

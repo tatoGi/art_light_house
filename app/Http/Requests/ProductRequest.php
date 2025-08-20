@@ -27,6 +27,8 @@ class ProductRequest extends FormRequest
             // Keep only the necessary fields; others can be null/not provided
             'category_id' => 'nullable|exists:categories,id',
             'price' => 'required|numeric|min:0',
+            'on_sale' => 'nullable|boolean',
+            // sale_price will be set conditionally below
             'sort_order' => 'nullable|integer|min:0',
             'active' => 'nullable|boolean',
             'images' => 'nullable|array',
@@ -37,6 +39,13 @@ class ProductRequest extends FormRequest
         foreach (config('app.locales') as $locale) {
             $rules["{$locale}.title"] = 'required|string|max:255';
             $rules["{$locale}.description"] = 'nullable|string|max:5000';
+        }
+        
+        // Conditional rule for sale_price
+        if ($this->boolean('on_sale')) {
+            $rules['sale_price'] = 'required|numeric|min:0';
+        } else {
+            $rules['sale_price'] = 'nullable|numeric|min:0';
         }
     
         return $rules;

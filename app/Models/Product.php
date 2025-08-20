@@ -18,8 +18,16 @@ class Product extends Model implements TranslatableContract
         'category_id',
         'size',
         'price',
+        'on_sale',
+        'sale_price',
         'active',
         'sort_order',
+    ];
+
+    protected $casts = [
+        'on_sale' => 'boolean',
+        'price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
     ];
 
     public $translatedAttributes = ['title', 'slug', 'description', 'brand', 'location', 'color'];

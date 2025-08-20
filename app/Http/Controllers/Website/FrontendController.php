@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\ContactFormMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Language;
 
 class FrontendController extends Controller
 {
@@ -73,6 +74,20 @@ class FrontendController extends Controller
         return response()->json($pages);
     }
 
+    /**
+     * Return languages from Languages CRUD for frontend to display.
+     * Only active languages, ordered by sort_order.
+     */
+    public function languages()
+    {
+        $items = Language::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get(['code', 'name', 'native_name', 'is_default', 'is_active', 'sort_order']);
+
+        return response()->json([
+            'data' => $items,
+        ]);
+    }
     public function show($url)
     {
         $data = $this->frontendService->getProductByUrl($url);

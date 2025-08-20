@@ -2,9 +2,7 @@
 
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Website\FrontendController;
-use App\Http\Controllers\Website\ProfileController;
 use App\Http\Controllers\Website\SearchController;
-use App\Http\Controllers\Website\wishlistController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
@@ -44,6 +42,9 @@ require __DIR__.'/auth.php';
     Route::post('/subscribe', [FrontendController::class, 'subscribe'])->name('subscribe');
     Route::get('/home', [FrontendController::class, 'homePage']);
     Route::get('/pages', [FrontendController::class, 'pages']);
+    Route::get('/pages-with-posts', [FrontendController::class, 'pagesWithPaginatedPosts'])->name('pages.with.posts');
+    Route::get('/categories', [FrontendController::class, 'categories']);
+    Route::get('/languages', [FrontendController::class, 'languages'])->name('api.languages');
     Route::get('/blog-posts', [FrontendController::class, 'latestBlogPosts'])->name('api.blog.latest');
     Route::get('/products', [FrontendController::class, 'products'])->name('api.products.list');
     Route::get('/products/{id}', [FrontendController::class, 'productShow'])->name('api.products.show');
@@ -67,23 +68,11 @@ Route::get('/change-locale/{lang}', function ($lang) {
 
 require __DIR__.'/website/auth.php';
 
-
-Route::get('/', [DashboardController::class, 'index'])->middleware('auth');
-
-
-Route::get('/search', [SearchController::class, 'search'])->name('search');
-Route::post('/contact-submit', [FrontendController::class, 'submitContactForm'])->name('contact.submit');
-Route::get('/sitemap', [SitemapController::class, 'generate']);
-Route::get('/pro/{url}', [FrontendController::class, 'show'])->name('single_product');
-Route::post('/subscribe', [FrontendController::class, 'subscribe'])->name('subscribe');
-Route::get('/home', [FrontendController::class, 'homePage']);
-Route::get('/pages', [FrontendController::class, 'pages']);
-Route::get('/pages-with-posts', [FrontendController::class, 'pagesWithPaginatedPosts'])->name('pages.with.posts');
-Route::get('/categories', [FrontendController::class, 'categories']);
 // Keep catch-all route at the end
 
 
-Route::get('/{slug}', [FrontendController::class, 'index'])->where('slug', '.*');
+// Exclude admin-prefixed URIs from the catch-all to avoid intercepting admin routes (e.g., POST /admin/seo/analyze)
+Route::get('/{slug}', [FrontendController::class, 'index'])->where('slug', '^(?!admin/).*');
 
 
 require __DIR__.'/website/basket.php';
