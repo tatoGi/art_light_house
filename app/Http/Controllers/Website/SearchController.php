@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\CategoryTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 class SearchController extends Controller
 {
@@ -25,9 +26,14 @@ class SearchController extends Controller
         $productTranslationIds = ProductTranslation::whereLocale($locale)
             ->where(function($query) use ($searchText) {
                 $query->where('title', 'LIKE', "%{$searchText}%")
-                    ->orWhere('description', 'LIKE', "%{$searchText}%")
-                    ->orWhere('brand', 'LIKE', "%{$searchText}%")
-                    ->orWhere('model', 'LIKE', "%{$searchText}%");
+                      ->orWhere('description', 'LIKE', "%{$searchText}%");
+
+                if (Schema::hasColumn('product_translations', 'brand')) {
+                    $query->orWhere('brand', 'LIKE', "%{$searchText}%");
+                }
+                if (Schema::hasColumn('product_translations', 'model')) {
+                    $query->orWhere('model', 'LIKE', "%{$searchText}%");
+                }
             })
             ->pluck('product_id')
             ->toArray();
@@ -73,7 +79,9 @@ class SearchController extends Controller
                 'desc' => Str::limit(strip_tags($translation->description)),
             ];
         });
-
-        return view('website.search.search_results', compact('products', 'productData', 'categoryData', 'language_slugs', 'searchText'));
+        return response()->json([
+            'products' => $productData,
+            'categories' => $categoryData,
+        ]);
     }
 }
