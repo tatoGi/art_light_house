@@ -30,8 +30,8 @@ class LanguageController extends Controller
             if (!in_array($locale, $existingLanguages)) {
                 $languageData = [
                     'code' => $locale,
-                    'name' => locale_get_display_name($locale, 'en'),
-                    'native_name' => locale_get_display_name($locale, $locale),
+                    'name' => $this->getLocaleDisplayName($locale, 'en'),
+                    'native_name' => $this->getLocaleDisplayName($locale, $locale),
                     'is_active' => true,
                     'is_default' => $locale === config('app.locale'),
                     'sort_order' => Language::count() + 1,
@@ -59,8 +59,8 @@ class LanguageController extends Controller
         $languages = Language::orderBy('sort_order')->get();
         $availableLocales = collect(config('app.available_locales', []))->mapWithKeys(function ($locale) {
             return [$locale => [
-                'name' => locale_get_display_name($locale, 'en'),
-                'native_name' => locale_get_display_name($locale, $locale)
+                'name' => $this->getLocaleDisplayName($locale, 'en'),
+                'native_name' => $this->getLocaleDisplayName($locale, $locale)
             ]];
         });
         
@@ -72,7 +72,7 @@ class LanguageController extends Controller
         $availableLocales = collect(config('app.available_locales', []))->filter(function ($locale) {
             return !Language::where('code', $locale)->exists();
         })->mapWithKeys(function ($locale) {
-            return [$locale => locale_get_display_name($locale, 'en') . ' (' . $locale . ')'];
+            return [$locale => $this->getLocaleDisplayName($locale, 'en') . ' (' . $locale . ')'];
         });
         
         return view('admin.languages.create', compact('availableLocales'));
@@ -294,8 +294,8 @@ class LanguageController extends Controller
             if (!$exists) {
                 $languageData = [
                     'code' => $locale,
-                    'name' => locale_get_display_name($locale, 'en'),
-                    'native_name' => locale_get_display_name($locale, $locale),
+                    'name' => $this->getLocaleDisplayName($locale, 'en'),
+                    'native_name' => $this->getLocaleDisplayName($locale, $locale),
                     'is_active' => true,
                     'is_default' => $locale === config('app.locale'),
                     'sort_order' => Language::count() + 1,
@@ -333,6 +333,23 @@ class LanguageController extends Controller
         Cache::forget('languages.active');
         Cache::forget('languages.default');
         Cache::forget('default_language');
+    }
+    
+    /**
+     * Get a human-readable display name for a locale, with fallbacks if intl is unavailable.
+     */
+    protected function getLocaleDisplayName(string $locale, string $inLocale): string
+    {
+        // Prefer procedural intl function when available
+        if (function_exists('locale_get_display_name')) {
+            return \locale_get_display_name($locale, $inLocale) ?: $locale;
+        }
+        // Fallback to OO API if available
+        if (class_exists(\Locale::class)) {
+            return \Locale::getDisplayName($locale, $inLocale) ?: $locale;
+        }
+        // Final fallback: return the locale code (uppercased for readability)
+        return strtoupper($locale);
     }
     
     /**
