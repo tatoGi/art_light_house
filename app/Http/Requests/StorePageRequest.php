@@ -16,7 +16,12 @@ class StorePageRequest extends FormRequest
         $rules = [];
         foreach (config('app.locales') as $locale) {
             $rules["{$locale}.title"] = 'required|string|max:255';
-            $rules["{$locale}.slug"] = 'required|string|max:255|unique:page_translations,slug';
+            $rules["{$locale}.slug"] = [
+                'required',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('page_translations', 'slug')
+            ];
             $rules["{$locale}.desc"] = 'required|string';
             $rules["{$locale}.keywords"] = 'nullable|string';
         }
@@ -31,12 +36,18 @@ class StorePageRequest extends FormRequest
 
     public function messages()
     {
-        return [
+        $messages = [
             'required' => __('This field is required.'),
             'string' => __('This field must be a string.'),
             'max' => __('This field must not exceed :max characters.'),
-            'unique' => __('This slug has already been taken.'),
             'exists' => __('The selected type is invalid.'),
         ];
+
+        // Add custom messages for slug uniqueness per locale
+        foreach (config('app.locales') as $locale) {
+            $messages["{$locale}.slug.unique"] = __('The URL keyword has already been taken. Please choose a different one.');
+        }
+
+        return $messages;
     }
 }

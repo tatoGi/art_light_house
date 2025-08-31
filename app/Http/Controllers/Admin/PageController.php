@@ -45,6 +45,7 @@ class PageController extends Controller
     {
         
         $data = $request->all();
+        
     
         foreach (config('app.locales') as $locale) {
             if ($data[$locale]['slug'] != '') {

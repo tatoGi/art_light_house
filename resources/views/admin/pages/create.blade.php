@@ -103,7 +103,7 @@
                                 Description
                                 ( {{ __('admin.locale_' . $locale) }})</label>
 
-                            <textarea id="description_{{ $locale }}" name="{{ $locale }}[description]" class="w-full border rounded-lg p-4 mt-2 bg-white focus:ring-indigo-500 focus:border-indigo-500 @error('description_' . $locale) border-red ring-1 ring-red-200 @enderror" placeholder="Description">{{ old($locale.'.description') }}</textarea>
+                            <textarea id="description_{{ $locale }}" name="{{ $locale }}[desc]" class="w-full border rounded-lg p-4 mt-2 bg-white focus:ring-indigo-500 focus:border-indigo-500 @error('description_' . $locale) border-red ring-1 ring-red-200 @enderror" placeholder="Description">{{ old($locale.'.description') }}</textarea>
 
                             @error('description_' . $locale)
 
