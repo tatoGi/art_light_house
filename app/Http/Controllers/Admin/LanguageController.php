@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\AiAgents\TranslateAgent;
 
 class LanguageController extends Controller
 {
@@ -457,5 +458,112 @@ class LanguageController extends Controller
         }
         
         return response()->json(['success' => true, 'message' => 'Translations exported successfully']);
+    }
+
+    /**
+     * Auto-translate missing (or all, if force=true) keys from source locale files into DB for target language.
+     * Expects: source (default 'en'), force (optional bool)
+     */
+    public function autoTranslate(Request $request, Language $language)
+    {
+        $sourceLocale = $request->input('source', 'en');
+        $force = filter_var($request->input('force', false), FILTER_VALIDATE_BOOLEAN);
+
+        $sourcePath = resource_path("lang/{$sourceLocale}");
+        if (!is_dir($sourcePath)) {
+            return response()->json(['success' => false, 'message' => "Source locale folder not found: {$sourcePath}"], 422);
+        }
+
+        // Collect all source groups and pairs
+        $groups = [];
+        foreach (glob($sourcePath . '/*.php') as $file) {
+            $group = basename($file, '.php');
+            $data = include $file;
+            if (is_array($data)) {
+                $groups[$group] = $data;
+            }
+        }
+
+        if (empty($groups)) {
+            return response()->json(['success' => false, 'message' => 'No source translation files found.'], 422);
+        }
+
+        // Build a map of existing target translations (DB + files)
+        $existing = [];
+        // From DB
+        $dbTranslations = $language->translations()->get();
+        foreach ($dbTranslations as $tr) {
+            $existing[$tr->group][$tr->key] = $tr->value;
+        }
+        // From files
+        $targetPath = resource_path('lang/' . $language->code);
+        if (is_dir($targetPath)) {
+            foreach (glob($targetPath . '/*.php') as $file) {
+                $group = basename($file, '.php');
+                $data = include $file;
+                if (is_array($data)) {
+                    foreach ($data as $k => $v) {
+                        $existing[$group][$k] = $v;
+                    }
+                }
+            }
+        }
+
+        $agent = new TranslateAgent();
+        $created = 0; $updated = 0; $skipped = 0; $errors = [];
+
+        foreach ($groups as $group => $pairs) {
+            // Determine which keys to translate
+            $toTranslate = [];
+            foreach ($pairs as $key => $value) {
+                $hasExisting = isset($existing[$group]) && array_key_exists($key, $existing[$group]) && ($existing[$group][$key] !== '' && $existing[$group][$key] !== null);
+                if ($force || !$hasExisting) {
+                    $toTranslate[$key] = $value;
+                } else {
+                    $skipped++;
+                }
+            }
+
+            if (empty($toTranslate)) {
+                continue;
+            }
+
+            // Chunk to avoid very large payloads
+            $chunks = array_chunk($toTranslate, 100, true);
+            foreach ($chunks as $chunk) {
+                try {
+                    $results = $agent->translateBatch($sourceLocale, $language->code, $chunk);
+                } catch (\Throwable $e) {
+                    Log::error('Auto-translate batch failed: ' . $e->getMessage());
+                    $errors[] = $e->getMessage();
+                    continue;
+                }
+
+                // Persist results to DB
+                foreach ($results as $k => $v) {
+                    $model = $language->translations()->updateOrCreate(
+                        ['group' => $group, 'key' => $k],
+                        ['value' => (string) $v]
+                    );
+                    if ($model->wasRecentlyCreated) {
+                        $created++;
+                    } else {
+                        $updated++;
+                    }
+                }
+            }
+        }
+
+        // Optionally clear caches
+        $this->clearCache();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Auto-translation completed',
+            'created' => $created,
+            'updated' => $updated,
+            'skipped' => $skipped,
+            'errors' => $errors,
+        ]);
     }
 }

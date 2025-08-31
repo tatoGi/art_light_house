@@ -111,6 +111,9 @@
                             <button id="export-translations" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                 Export to Files
                             </button>
+                            <button id="auto-translate" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                Auto-Translate Missing
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -351,6 +354,43 @@
                         alert('Error exporting translations');
                     });
                 }
+            });
+
+            // Auto-translate missing keys
+            const autoTranslateButton = document.getElementById('auto-translate');
+            autoTranslateButton.addEventListener('click', function() {
+                if (!confirm('Auto-translate missing keys from EN to {{ $language->code }}?')) {
+                    return;
+                }
+                const url = '{{ route('admin.languages.auto_translate', ['locale' => app()->getLocale(), 'language' => $language]) }}';
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ source: 'en', force: false })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Auto-translate failed: ' + (data.message || 'Unknown error'));
+                        return;
+                    }
+                    alert(`Auto-translate completed.\nCreated: ${data.created}\nUpdated: ${data.updated}\nSkipped: ${data.skipped}`);
+                    if (confirm('Export the new translations to files now?')) {
+                        exportButton.click();
+                    } else {
+                        // Reload to reflect new DB translations in the list
+                        window.location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Auto-translate request error.');
+                });
             });
 
             // Close modal when clicking cancel or outside

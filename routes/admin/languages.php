@@ -30,4 +30,8 @@ Route::middleware(['auth', 'can:manage_languages'])->group(function () {
         
     Route::post('languages/{language}/export', [LanguageController::class, 'exportTranslations'])
         ->name('admin.languages.export');
+    
+    // Auto-translate missing keys using LarAgent
+    Route::post('languages/{language}/auto-translate', [LanguageController::class, 'autoTranslate'])
+        ->name('admin.languages.auto_translate');
 });
