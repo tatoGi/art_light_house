@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+
 class RegisterController extends Controller
 {
 
@@ -28,14 +29,24 @@ class RegisterController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
+            // Authenticate the user with the 'webuser' guard for the current request
             Auth::guard('webuser')->login($user);
+            
+            // Create a new token for API authentication
+            $token = $user->createToken(
+                name: 'auth_token',
+                expiresAt: now()->addDays(30) // Token expires in 30 days
+            )->plainTextToken;
 
             return response()->json([
                 'success' => true,
                 'message' => 'User registered successfully',
                 'user' => $user,
+                'access_token' => $token,
+                'token_type' => 'Bearer',
                 'redirect' => '/'
             ], 201);
+
 
         } catch (ValidationException $e) {
             return response()->json([

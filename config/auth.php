@@ -40,8 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'webuser' => [ // Corrected guard name
+        'webuser' => [
             'driver' => 'session',
+            'provider' => 'webuser',
+        ],
+        'sanctum' => [
+            'driver' => 'sanctum',
             'provider' => 'webuser',
         ],
        
