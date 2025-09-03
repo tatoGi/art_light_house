@@ -124,30 +124,45 @@ public function removeFromCart($productId)
 }
     public function fetchCartData($userId)
     {
-        $cartItems = Cart::where('user_id', $userId)->with('product')->get();
+        $cartItems = Cart::where('user_id', $userId)
+            ->with(['product' => function($query) {
+                $query->with(['images' => function($q) {
+                    $q->orderBy('sort_order')->take(1);
+                }]);
+            }])
+            ->get();
     
         // Prepare array to store formatted product data
         $products = [];
+        $subtotal = 0;
     
         foreach ($cartItems as $cartItem) {
             $product = $cartItem->product;
+            if (!$product) continue; // Skip if product not found
+            
+            // Get first image or use a default image
+            $imageUrl = null;
+            if ($product->images->isNotEmpty()) {
+                $imageUrl = asset('storage/' . $product->images->first()->image_name);
+            } else {
+                // Fallback to a default image if no product images exist
+                $imageUrl = asset('images/default-product.jpg'); // Make sure this image exists in your public directory
+            }
     
-            // Construct image URL using asset() function
-            $imageUrl = asset('storage/products/' . $product->images->first()->image_name);
-    
-            // Customize product data as needed for frontend
+            // Calculate item total
+            $itemTotal = $product->price * $cartItem->quantity;
+            $subtotal += $itemTotal;
+            
+            // Add to products array
             $products[] = [
                 'id' => $product->id,
                 'name' => $product->title,
                 'price' => $product->price,
-                'image' => $imageUrl, // Pass the constructed image URL
+                'quantity' => $cartItem->quantity,
+                'image' => $imageUrl,
+                'item_total' => $itemTotal
             ];
         }
-    
-        // Calculate subtotal and format cart data
-        $subtotal = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
        
         return response()->json([
             'items' => $products,
