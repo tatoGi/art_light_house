@@ -127,7 +127,8 @@ public function removeFromCart($productId)
         $cartItems = Cart::where('user_id', $userId)
             ->with(['product' => function($query) {
                 $query->with(['images' => function($q) {
-                    $q->orderBy('sort_order')->take(1);
+                    // Use id for ordering if sort_order doesn't exist
+                    $q->orderBy('id', 'asc')->take(1);
                 }]);
             }])
             ->get();
