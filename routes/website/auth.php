@@ -1,17 +1,40 @@
 <?php
 
-use App\Http\Controllers\Website\Auth\LoginController;
-use App\Http\Controllers\Website\Auth\RegisterController;
+use App\Http\Controllers\Website\AuthController;
 use App\Http\Controllers\Website\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('web.logout');
+// Public auth routes (no authentication required)
+Route::get('/language', [AuthController::class, 'getLanguage'])->name('language.current');
 
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register-show');
-Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']);
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/send-registration-email', [AuthController::class, 'sendRegistrationEmail']);
+Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('/verify-email-code', [AuthController::class, 'verifyEmailCode']);
+Route::post('/resend-email-verification', [AuthController::class, 'resendEmailVerification']);
+Route::post('/complete-registration', [AuthController::class, 'completeRegistration']);
 
 
-Route::get('/user_profile', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+// Email verification routes
+Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail']);
+Route::post('/verify-email', [AuthController::class, 'verifyEmailFromForm'])->name('verification.verify.post');
+Route::post('/resend-verification', [AuthController::class, 'resendVerification'])->name('verification.resend');
+
+// Protected routes requiring authentication
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user_profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+// JSON profile routes for SPA usage  
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/me', [AuthController::class, 'me'])->name('profile.me');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update.json');
+    Route::post('/profile/retailer-request', [ProfileController::class, 'requestRetailer'])->name('profile.retailer.request');
+    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.avatar');
+  
+});
+

@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\DashboardController;
 
 require __DIR__.'/auth.php';
 
+require __DIR__.'/website/auth.php';
 // Email API routes (outside locale group for direct access)
 
     // Admin routes with auth middleware
@@ -66,7 +67,6 @@ Route::get('/change-locale/{lang}', function ($lang) {
     return back();
 })->name('set.locale')->withoutMiddleware(['locale']);
 
-require __DIR__.'/website/auth.php';
 
 // Keep catch-all route at the end
 

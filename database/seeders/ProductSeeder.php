@@ -12,63 +12,75 @@ class ProductSeeder extends Seeder
     public function run()
     {
         // Fetch the categories to ensure the IDs are correct
-        $joystickCategory = Category::whereTranslation('title', 'Joysticks')->first();
-        $keyboardCategory = Category::whereTranslation('title', 'Keyboards')->first();
-        $mouseCategory = Category::whereTranslation('title', 'Mice')->first();
+        $lighthouseDecorCategory = Category::whereTranslation('title', 'Lighthouse Decor')->first();
+        $maritimeArtCategory = Category::whereTranslation('title', 'Maritime Art')->first();
+        $coastalGiftsCategory = Category::whereTranslation('title', 'Coastal Gifts')->first();
 
-        // Define the products and their translations
+        // Define lighthouse and art-themed products
         $products = [
             [
-                'category_id' => $joystickCategory->id,
-                'price' => 49.99,
-                'quantity' => 100,
-                'active' => true,
+                'category_id' => $lighthouseDecorCategory->id,
+                'price' => 149.99,
+                'active' => 1,
                 'translations' => [
-                    'en' => ['title' => 'Gaming Joystick', 'slug' => 'gaming-joystick', 'description' => 'High-quality gaming joystick', 'brand' => 'Brand A', 'model' => 'Model X1', 'warranty_period' => '1 year'],
-                    'ka' => ['title' => 'სათამაშო ჯოისტიკი', 'slug' => 'სათამაშო-ჯოისტიკი', 'description' => 'მაღალი ხარისხის სათამაშო ჯოისტიკი', 'brand' => 'ბრენდი A', 'model' => 'მოდელი X1', 'warranty_period' => '1 წელი'],
+                    'en' => ['title' => 'Lighthouse Beacon Lamp', 'slug' => 'lighthouse-beacon-lamp', 'description' => 'Handcrafted lighthouse-inspired table lamp with rotating beacon light', 'brand' => 'Coastal Crafts', 'location' => 'Gallery A', 'color' => 'White & Red'],
+                    'ka' => ['title' => 'შუქურის ნათურა', 'slug' => 'შუქურის-ნათურა', 'description' => 'ხელნაკეთი შუქურის ინსპირირებული მაგიდის ნათურა მბრუნავი შუქით', 'brand' => 'სანაპირო ხელოვნება', 'location' => 'გალერეა A', 'color' => 'თეთრი და წითელი'],
                 ],
             ],
             [
-                'category_id' => $keyboardCategory->id,
-                'price' => 49.99,
-                'quantity' => 100,
-                'active' => true,
+                'category_id' => $maritimeArtCategory->id,
+                'price' => 89.99,
+                'active' => 1,
                 'translations' => [
-                    'en' => ['title' => 'Gaming Joystick', 'slug' => 'gaming-joystick', 'description' => 'High-quality gaming joystick', 'brand' => 'Brand A', 'model' => 'Model X1', 'warranty_period' => '1 year'],
-                    'ka' => ['title' => 'სათამაშო ჯოისტიკი', 'slug' => 'სათამაშო-ჯოისტიკი', 'description' => 'მაღალი ხარისხის სათამაშო ჯოისტიკი', 'brand' => 'ბრენდი A', 'model' => 'მოდელი X1', 'warranty_period' => '1 წელი'],
+                    'en' => ['title' => 'Maritime Canvas Print', 'slug' => 'maritime-canvas-print', 'description' => 'Beautiful lighthouse seascape canvas print, perfect for coastal decor', 'brand' => 'Ocean Art Studio', 'location' => 'Gallery B', 'color' => 'Blue & White'],
+                    'ka' => ['title' => 'საზღვაო ტილოს ნახატი', 'slug' => 'საზღვაო-ტილოს-ნახატი', 'description' => 'ლამაზი შუქურის ზღვის პეიზაჟის ტილოს ნახატი, იდეალური სანაპირო დეკორისთვის', 'brand' => 'ოკეანის ხელოვნების სტუდია', 'location' => 'გალერეა B', 'color' => 'ლურჯი და თეთრი'],
                 ],
             ],
             [
-                'category_id' => $mouseCategory->id,
-                'price' => 49.99,
-                'quantity' => 100,
-                'active' => true,
+                'category_id' => $coastalGiftsCategory->id,
+                'price' => 24.99,
+                'active' => 1,
                 'translations' => [
-                    'en' => ['title' => 'Gaming Joystick', 'slug' => 'gaming-joystick', 'description' => 'High-quality gaming joystick', 'brand' => 'Brand A', 'model' => 'Model X1', 'warranty_period' => '1 year'],
-                    'ka' => ['title' => 'სათამაშო ჯოისტიკი', 'slug' => 'სათამაშო-ჯოისტიკი', 'description' => 'მაღალი ხარისხის სათამაშო ჯოისტიკი', 'brand' => 'ბრენდი A', 'model' => 'მოდელი X1', 'warranty_period' => '1 წელი'],
+                    'en' => ['title' => 'Lighthouse Ceramic Mug', 'slug' => 'lighthouse-ceramic-mug', 'description' => 'Hand-painted ceramic mug featuring iconic lighthouse design', 'brand' => 'Seaside Pottery', 'location' => 'Shop Floor', 'color' => 'Navy Blue'],
+                    'ka' => ['title' => 'შუქურის კერამიკული ფინჯანი', 'slug' => 'შუქურის-კერამიკული-ფინჯანი', 'description' => 'ხელით მოხატული კერამიკული ფინჯანი შუქურის დიზაინით', 'brand' => 'ზღვისპირა კერამიკა', 'location' => 'მაღაზიის დარბაზი', 'color' => 'ღია ლურჯი'],
                 ],
             ],
             [
-                'category_id' => $mouseCategory->id,
-                'price' => 49.99,
-                'quantity' => 100,
-                'active' => true,
+                'category_id' => $coastalGiftsCategory->id,
+                'price' => 199.99,
+                'active' => 1,
                 'translations' => [
-                    'en' => ['title' => 'Gaming Joystick', 'slug' => 'gaming-joystick', 'description' => 'High-quality gaming joystick', 'brand' => 'Brand A', 'model' => 'Model X1', 'warranty_period' => '1 year'],
-                    'ka' => ['title' => 'სათამაშო ჯოისტიკი', 'slug' => 'სათამაშო-ჯოისტიკი', 'description' => 'მაღალი ხარისხის სათამაშო ჯოისტიკი', 'brand' => 'ბრენდი A', 'model' => 'მოდელი X1', 'warranty_period' => '1 წელი'],
+                    'en' => ['title' => 'Vintage Lighthouse Model', 'slug' => 'vintage-lighthouse-model', 'description' => 'Detailed wooden lighthouse model replica, perfect for collectors', 'brand' => 'Heritage Models', 'location' => 'Display Case', 'color' => 'Natural Wood'],
+                    'ka' => ['title' => 'ვინტაჟური შუქურის მოდელი', 'slug' => 'ვინტაჟური-შუქურის-მოდელი', 'description' => 'დეტალური ხის შუქურის მოდელის რეპლიკა, იდეალური კოლექციონერებისთვის', 'brand' => 'მემკვიდრეობის მოდელები', 'location' => 'საჩვენებელი ვიტრინა', 'color' => 'ბუნებრივი ხე'],
                 ],
             ],
             [
-                'category_id' => $mouseCategory->id,
-                'price' => 49.99,
-                'quantity' => 100,
-                'active' => true,
+                'category_id' => $lighthouseDecorCategory->id,
+                'price' => 45.99,
+                'active' => 1,
                 'translations' => [
-                    'en' => ['title' => 'Gaming Joystick', 'slug' => 'gaming-joystick', 'description' => 'High-quality gaming joystick', 'brand' => 'Brand A', 'model' => 'Model X1', 'warranty_period' => '1 year'],
-                    'ka' => ['title' => 'სათამაშო ჯოისტიკი', 'slug' => 'სათამაშო-ჯოისტიკი', 'description' => 'მაღალი ხარისხის სათამაშო ჯოისტიკი', 'brand' => 'ბრენდი A', 'model' => 'მოდელი X1', 'warranty_period' => '1 წელი'],
+                    'en' => ['title' => 'Coastal Breeze Candle Set', 'slug' => 'coastal-breeze-candle-set', 'description' => 'Set of 3 lighthouse-themed scented candles with ocean breeze fragrance', 'brand' => 'Lighthouse Candles Co.', 'location' => 'Gift Section', 'color' => 'Ocean Blue'],
+                    'ka' => ['title' => 'სანაპირო ქარის სანთლების ნაკრები', 'slug' => 'სანაპირო-ქარის-სანთლების-ნაკრები', 'description' => '3 შუქურის თემატური სუნამო სანთლის ნაკრები ოკეანის ქარის არომატით', 'brand' => 'შუქურის სანთლების კომპანია', 'location' => 'საჩუქრების სექცია', 'color' => 'ოკეანის ლურჯი'],
                 ],
             ],
-            // Add more products similarly
+            [
+                'category_id' => $maritimeArtCategory->id,
+                'price' => 129.99,
+                'active' => 1,
+                'translations' => [
+                    'en' => ['title' => 'Lighthouse Photography Book', 'slug' => 'lighthouse-photography-book', 'description' => 'Coffee table book featuring stunning lighthouse photography from around the world', 'brand' => 'Beacon Publications', 'location' => 'Book Corner', 'color' => 'Hardcover'],
+                    'ka' => ['title' => 'შუქურების ფოტო წიგნი', 'slug' => 'შუქურების-ფოტო-წიგნი', 'description' => 'ყავის მაგიდის წიგნი მსოფლიოს შუქურების განსაცვიფრებელი ფოტოებით', 'brand' => 'ბიკონ გამომცემლობა', 'location' => 'წიგნების კუთხე', 'color' => 'მყარი ყდა'],
+                ],
+            ],
+            [
+                'category_id' => $coastalGiftsCategory->id,
+                'price' => 34.99,
+                'active' => 1,
+                'translations' => [
+                    'en' => ['title' => 'Nautical Compass Keychain', 'slug' => 'nautical-compass-keychain', 'description' => 'Brass nautical compass keychain with lighthouse engraving', 'brand' => 'Maritime Gifts', 'location' => 'Accessories', 'color' => 'Antique Brass'],
+                    'ka' => ['title' => 'საზღვაო კომპასის საკვანძო', 'slug' => 'საზღვაო-კომპასის-საკვანძო', 'description' => 'ბრინჯაოს საზღვაო კომპასის საკვანძო შუქურის გრავირებით', 'brand' => 'საზღვაო საჩუქრები', 'location' => 'აქსესუარები', 'color' => 'ანტიკური ბრინჯაო'],
+                ],
+            ],
         ];
 
         // Insert the products into the database
@@ -83,14 +95,6 @@ class ProductSeeder extends Seeder
             }
 
             $product->save();
-
-            // Add fake images to the product
-            for ($i = 0; $i < 3; $i++) {
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_name' => 'fake_image_' . ($i + 1) . '.jpg', // Replace with actual image names or use a faker library for dummy images
-                ]);
-            }
         }
     }
 }

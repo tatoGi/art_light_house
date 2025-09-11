@@ -11,27 +11,27 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'icon' => 'joystick-icon.png',
-                'active' => true,
+                'icon' => 'lighthouse-icon.png',
+                'active' => 1,
                 'translations' => [
-                    ['locale' => 'en', 'title' => 'Joysticks', 'slug' => 'joysticks', 'description' => 'Game joysticks'],
-                    ['locale' => 'ka', 'title' => 'კონსოლები', 'slug' => 'კონსოლები', 'description' => 'სათამაშო კონსოლები']
+                    ['locale' => 'en', 'title' => 'Lighthouse Decor', 'slug' => 'lighthouse-decor', 'description' => 'Lighthouse-themed decorative items and lamps'],
+                    ['locale' => 'ka', 'title' => 'შუქურის დეკორი', 'slug' => 'შუქურის-დეკორი', 'description' => 'შუქურის თემატური დეკორატიული ნივთები და ნათურები']
                 ],
             ],
             [
-                'icon' => 'keyboard-icon.png',
-                'active' => true,
+                'icon' => 'art-icon.png',
+                'active' => 1,
                 'translations' => [
-                    ['locale' => 'en', 'title' => 'Keyboards', 'slug' => 'keyboards', 'description' => 'Gaming keyboards'],
-                    ['locale' => 'ka', 'title' => 'კლავიატურა', 'slug' => 'კლავიატურა', 'description' => 'კლავიატურა']
+                    ['locale' => 'en', 'title' => 'Maritime Art', 'slug' => 'maritime-art', 'description' => 'Canvas prints, paintings and maritime artwork'],
+                    ['locale' => 'ka', 'title' => 'საზღვაო ხელოვნება', 'slug' => 'საზღვაო-ხელოვნება', 'description' => 'ტილოს ნახატები, ფერწერა და საზღვაო ხელოვნების ნამუშევრები']
                 ],
             ],
             [
-                'icon' => 'mouse-icon.png',
-                'active' => true,
+                'icon' => 'gift-icon.png',
+                'active' => 1,
                 'translations' => [
-                    ['locale' => 'en', 'title' => 'Mice', 'slug' => 'mice', 'description' => 'Gaming mice'],
-                    ['locale' => 'ka', 'title' => 'მაუსები', 'slug' => 'მაუსები', 'description' => 'მაუსები']
+                    ['locale' => 'en', 'title' => 'Coastal Gifts', 'slug' => 'coastal-gifts', 'description' => 'Nautical gifts, souvenirs and collectibles'],
+                    ['locale' => 'ka', 'title' => 'სანაპირო საჩუქრები', 'slug' => 'სანაპირო-საჩუქრები', 'description' => 'საზღვაო საჩუქრები, სუვენირები და კოლექციური ნივთები']
                 ],
             ],
         ];

@@ -60,6 +60,7 @@ class wishlistController extends Controller
     
 public function addToCart(Request $request)
 {
+   
     if (Auth::guard('webuser')->check()) {
         $productId = $request->input('productId');
         $userId = Auth::guard('webuser')->user()->id;
@@ -99,7 +100,7 @@ public function addToCart(Request $request)
         return response()->json([
             'success' => false,
             'message' => 'Authentication required',
-            'redirect' => route('login') // Make sure you have a named route for login
+            'redirect' => route('login' , ['lang' => app()->getLocale()]) // Make sure you have a named route for login
         ], 401);
     }
 }
